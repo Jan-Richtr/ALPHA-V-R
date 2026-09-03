@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>V&R Ads CRM</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230d1340'/%3E%3Ctext x='32' y='26' font-family='Georgia,serif' font-size='22' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EV%26R%3C/text%3E%3Ctext x='32' y='50' font-family='Arial,sans-serif' font-size='16' font-weight='800' fill='%2322c55e' text-anchor='middle' letter-spacing='2'%3EADS%3C/text%3E%3C/svg%3E">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#0d0f1a;--bg2:#141726;--bg3:#1c2035;--border:#2e3454;--accent:#6c63ff;--accent2:#8b84ff;--green:#22c55e;--red:#ef4444;--orange:#f97316;--yellow:#eab308;--blue:#3b82f6;--purple:#a855f7;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--safe-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:10px;height:52px;position:sticky;top:0;z-index:100}
+.logo{font-size:1rem;font-weight:700;color:var(--accent2);flex-shrink:0}
+.tabs{display:flex;gap:2px;flex-shrink:0}
+.tab{background:none;border:none;color:var(--text2);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:500;transition:all .15s;white-space:nowrap}
+.tab.active{background:var(--accent);color:#fff}
+.tab:hover:not(.active){background:var(--bg3);color:var(--text)}
+.search-wrap{flex:1;max-width:260px;position:relative}
+.search-wrap input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px 6px 28px;color:var(--text);font-size:.8rem;outline:none}
+.search-wrap input:focus{border-color:var(--accent)}
+.si{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:.75rem}
+.filter-row{display:flex;gap:5px;align-items:center;margin-left:auto}
+.flt{background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:4px 9px;color:var(--text2);font-size:.73rem;cursor:pointer;white-space:nowrap}
+select.flt{appearance:none;padding-right:18px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center}
+.btn-imp{background:var(--accent);color:#fff;padding:5px 11px;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;border:none;white-space:nowrap;flex-shrink:0}
+.btn-imp:hover{background:var(--accent2)}
+/* STATS BAR */
+.stats-bar{display:flex;gap:8px;padding:8px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.stt{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.stt:hover,.stt.on{border-color:var(--accent);background:rgba(108,99,255,.12)}
+.stt-n{font-size:1.15rem;font-weight:700}
+.stt-l{font-size:.68rem;color:var(--text2)}
+/* TABLE */
+#view-table{overflow-x:auto;max-height:calc(100vh - 125px);overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
+thead{position:sticky;top:0;z-index:10}
+th{background:var(--bg2);color:var(--text2);font-weight:600;padding:8px 9px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;border-right:1px solid var(--border)}
+th:hover{color:var(--accent2)}
+th .si2{margin-left:3px;opacity:.4;font-size:.65rem}
+th.sorted .si2{opacity:1;color:var(--accent2)}
+td{padding:7px 9px;border-bottom:1px solid rgba(46,52,84,.4);vertical-align:middle;border-right:1px solid rgba(46,52,84,.25);max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:600;white-space:nowrap}
+/* Fáze badge colors */
+.b-nz1{background:rgba(234,179,8,.2);color:#eab308}
+.b-nz2{background:rgba(249,115,22,.2);color:#f97316}
+.b-nz3{background:rgba(239,68,68,.2);color:#ef4444}
+.b-em{background:rgba(168,85,247,.2);color:#a855f7}
+.b-eo{background:rgba(99,102,241,.2);color:#6366f1}
+.b-eod{background:rgba(14,165,233,.2);color:#0ea5e9}
+.b-uze{background:rgba(22,163,74,.2);color:#16a34a}
+.b-nr{background:rgba(100,116,139,.2);color:#94a3b8}
+.b-wa{background:rgba(37,211,102,.2);color:#25d366}
+.b-konec{background:rgba(239,68,68,.2);color:#ef4444}
+.b-volat{background:rgba(234,179,8,.2);color:#eab308}
+.b-ds{background:rgba(34,197,94,.2);color:#22c55e}
+/* Poznámka category badges */
+.p-ot{background:rgba(234,179,8,.15);color:#eab308}
+.p-uz{background:rgba(34,197,94,.15);color:#22c55e}
+.p-ko{background:rgba(239,68,68,.15);color:#ef4444}
+/* Inline cell select */
+.cell-sel{background:transparent;border:none;color:inherit;font-size:.72rem;cursor:pointer;font-family:inherit;width:100%;padding:0;outline:none}
+.cell-sel:focus{outline:1px solid var(--accent);border-radius:3px}
+.link{color:var(--accent2);text-decoration:none}
+.link:hover{text-decoration:underline}
+.prodej-val{color:var(--green);font-weight:600}
+/* STATS VIEW */
+#view-stats{padding:20px;display:none;overflow-y:auto;max-height:calc(100vh - 125px)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:15px 18px}
+.kpi-val{font-size:1.9rem;font-weight:700;margin-bottom:2px}
+.kpi-label{font-size:.72rem;color:var(--text2)}
+.kpi-sub{font-size:.75rem;color:var(--text3);margin-top:3px}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.chart-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.chart-box h3{font-size:.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:.75rem}
+.bar-label{width:150px;color:var(--text);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;background:var(--bg3);border-radius:4px;height:16px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:5px;font-size:.65rem;font-weight:600;color:#fff;transition:width .4s}
+.bar-count{width:32px;text-align:right;color:var(--text2);flex-shrink:0}
+.pt{width:100%;border-collapse:collapse;font-size:.78rem}
+.pt th{background:var(--bg3);color:var(--text2);padding:6px 9px;text-align:left;border-bottom:1px solid var(--border)}
+.pt td{padding:6px 9px;border-bottom:1px solid rgba(46,52,84,.3)}
+@media(max-width:700px){.charts-row{grid-template-columns:1fr}}
+/* VOLAT VIEW */
+#view-email{padding:14px;display:none;overflow-y:auto;max-height:calc(100vh - 125px)}
+.vl-section{margin-bottom:18px}
+.vl-section h3{font-size:.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.vl-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px 13px;margin-bottom:5px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s}
+.vl-card:hover{border-color:var(--accent)}
+.vl-date{font-size:.9rem;font-weight:700;min-width:55px;flex-shrink:0}
+.vl-info{flex:1;min-width:0}
+.vl-name{font-weight:600;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vl-sub{font-size:.72rem;color:var(--text2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vl-acts{display:flex;gap:5px;flex-shrink:0}
+.btn-ic{background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:4px 7px;cursor:pointer;text-decoration:none;color:var(--text2);font-size:.75rem;transition:all .15s}
+.btn-ic:hover{border-color:var(--accent);color:var(--accent2)}
+/* PANEL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200}
+.overlay.open{display:block}
+.panel{position:fixed;right:0;top:0;bottom:0;width:400px;background:var(--bg2);border-left:1px solid var(--border);z-index:201;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .2s;overflow:hidden}
+.panel.open{transform:translateX(0)}
+.ph{padding:13px 15px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.ph-name{font-size:.95rem;font-weight:700}
+.ph-sub{font-size:.75rem;color:var(--text2);margin-top:2px}
+.ph-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:2px}
+.ph-close:hover{color:var(--text)}
+.pb{overflow-y:auto;flex:1;padding:13px 15px;display:flex;flex-direction:column;gap:11px}
+.p-actions{display:flex;gap:6px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:6px;font-size:.75rem;font-weight:500;cursor:pointer;text-decoration:none;border:1px solid var(--border);background:var(--bg3);color:var(--text);transition:all .15s}
+.btn:hover{border-color:var(--accent);color:var(--accent2)}
+.btn-pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-pri:hover{background:var(--accent2)}
+.p-label{font-size:.68rem;color:var(--text2);margin-bottom:3px;display:block;text-transform:uppercase;letter-spacing:.4px}
+.p-select,.p-input,.p-textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 9px;color:var(--text);font-size:.8rem;outline:none;font-family:inherit}
+.p-select:focus,.p-input:focus,.p-textarea:focus{border-color:var(--accent)}
+.p-textarea{resize:vertical;min-height:80px}
+.p-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.p-full{grid-column:1/-1}
+.info-box{background:var(--bg3);border-radius:6px;padding:8px 10px}
+.info-box .lbl{font-size:.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.info-box .val{font-size:.78rem;word-break:break-word}
+.info-box .val a{color:var(--accent2);text-decoration:none}
+.prodej-sec{background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:11px}
+.prodej-sec .sec-t{font-size:.68rem;color:var(--green);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:9px}
+.prodej-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ps{padding:10px 15px;border-top:1px solid var(--border)}
+/* IMPORT */
+.imp-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;align-items:center;justify-content:center}
+.imp-ov.open{display:flex}
+.imp-modal{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:22px;width:480px;max-width:95vw}
+.imp-modal h3{font-size:.95rem;font-weight:700;margin-bottom:12px}
+.drop-z{border:2px dashed var(--border);border-radius:8px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:10px}
+.drop-z:hover,.drop-z.drag{border-color:var(--accent);background:rgba(108,99,255,.06)}
+.drop-z .ic{font-size:30px;margin-bottom:7px}
+.imp-prog{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:8px}
+.imp-prog-f{height:100%;background:var(--accent);transition:width .3s}
+.imp-foot{display:flex;gap:7px;justify-content:flex-end;margin-top:12px}
+.imp-btn{padding:6px 13px;border-radius:6px;font-size:.8rem;font-weight:600;cursor:pointer;border:none}
+.imp-btn-p{background:var(--accent);color:#fff}
+.imp-btn-s{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+/* ICON BUTTONS */
+.icon-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:7px;width:34px;height:34px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.icon-btn:hover{border-color:var(--accent);color:var(--text)}
+/* MOBILE / DESKTOP visibility */
+.d-mobile{display:none!important}
+.d-desktop{}
+@media(max-width:700px){
+  .d-mobile{display:flex!important}
+  .d-desktop{display:none!important}
+  #view-table{display:none}
+  #view-stats{max-height:calc(100vh - 110px - var(--safe-bottom))}
+  #view-email{max-height:calc(100vh - 110px - var(--safe-bottom))}
+  #view-kampane{max-height:calc(100vh - 110px - var(--safe-bottom))}
+  .topbar{padding:0 10px;gap:7px;height:48px}
+}
+/* MOBILE CARDS */
+#view-cards{display:none;overflow-y:auto;max-height:calc(100vh - 110px - var(--safe-bottom));padding:10px 12px;padding-bottom:calc(10px + var(--safe-bottom))}
+.lead-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.lead-card:active{background:var(--bg3)}
+.lead-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:5px}
+.lead-card-name{font-weight:700;font-size:.88rem}
+.lead-card-firma{font-size:.72rem;color:var(--text2);margin-top:1px}
+.lead-card-badges{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.lead-card-mid{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px}
+.lead-card-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.lead-card-note{font-size:.72rem;color:var(--text3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lead-card-acts{display:flex;gap:5px;flex-shrink:0}
+.card-act{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 8px;text-decoration:none;font-size:.8rem}
+/* PLATFORM TAGS */
+.plat-tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:.62rem;font-weight:700}
+.plat-tag.plat-facebook{background:rgba(59,130,246,.2);color:#60a5fa}
+.plat-tag.plat-instagram{background:rgba(236,72,153,.2);color:#f472b6}
+.camp-tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:.65rem;background:rgba(108,99,255,.15);color:var(--accent2);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+/* KAMPANE VIEW */
+#view-kampane{padding:0;display:none;overflow-y:auto;max-height:calc(100vh - 125px)}
+/* LOGIN MODAL */
+#loginModal{display:none;position:fixed;inset:0;background:var(--bg);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#loginModal.open{display:flex}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:30px 28px;width:300px;max-width:90vw}
+.login-title{font-size:1.1rem;font-weight:700;margin-bottom:20px;text-align:center}
+.login-logo{font-size:1.4rem;font-weight:800;color:var(--accent2);text-align:center;margin-bottom:4px}
+/* BOTTOM NAV (mobile) */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);padding:6px 0;padding-bottom:calc(6px + var(--safe-bottom));z-index:150;justify-content:space-around}
+@media(max-width:700px){.bottom-nav{display:flex}}
+.bn-btn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:var(--text3);cursor:pointer;padding:4px 12px;border-radius:8px;font-size:.58rem;font-weight:500;transition:all .15s;min-width:50px}
+.bn-btn.active{color:var(--accent2)}
+.bn-btn .bn-ic{font-size:1.1rem}
+/* MOBILE FILTER SHEET */
+.flt-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400}
+.flt-overlay.open{display:block}
+.flt-sheet{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-radius:16px 16px 0 0;border-top:1px solid var(--border);padding:16px;padding-bottom:calc(16px + var(--safe-bottom));z-index:401;transform:translateY(100%);transition:transform .25s}
+.flt-sheet.open{transform:translateY(0)}
+.flt-sheet h3{font-size:.85rem;font-weight:700;margin-bottom:14px}
+.flt-sheet select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 10px;color:var(--text);font-size:.82rem;margin-bottom:10px;outline:none}
+/* Kampaně cards */
+.camp-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px 14px;margin-bottom:10px}
+.camp-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.camp-stats{display:flex;flex-wrap:wrap;gap:8px}
+.camp-stat{background:var(--bg3);border-radius:7px;padding:7px 11px;min-width:70px;text-align:center}
+.camp-stat-val{font-size:.88rem;font-weight:700;margin-bottom:2px}
+.camp-stat-label{font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+/* card actions */
+.card-act{display:flex;align-items:center;justify-content:center;width:30px;height:30px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;text-decoration:none;font-size:.9rem}
+/* View cards container */
+#view-cards{padding:8px 10px 80px;display:none}
+/* View kampane container */
+#view-kampane{padding:8px 10px 80px;display:none}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">V&R Ads</div>
+  <div class="tabs d-desktop">
+    <button class="tab active" onclick="setTab('table')">📋 Tabulka</button>
+    <button class="tab" onclick="setTab('stats')">📊 Statistiky</button>
+    <button class="tab" onclick="setTab('email')">📧 Email</button>
+    <button class="tab" onclick="setTab('kampane')">📣 Kampaně</button>
+  </div>
+  <div class="search-wrap">
+    <span class="si">🔍</span>
+    <input type="text" id="searchInput" placeholder="Hledat…" oninput="applyFilters()">
+  </div>
+  <span id="syncLbl" style="font-size:.68rem;color:#64748b;flex-shrink:0;white-space:nowrap;display:none" class="d-desktop"></span>
+  <button class="icon-btn" onclick="init()" title="Obnovit">🔄</button>
+  <button class="icon-btn" onclick="doLogout()" title="Odhlásit" style="font-size:.7rem;color:var(--text3);border-color:transparent;background:none">🚪</button>
+  <button class="icon-btn d-desktop" onclick="openImport()" title="Import XLS" style="background:var(--accent);border-color:var(--accent);color:#fff">📥</button>
+  <button class="icon-btn d-desktop" id="gsheetBtn" onclick="syncGSheets()" title="Sync Google Sheets" style="background:#16a34a;border-color:#16a34a;color:#fff">📊</button>
+  <button class="icon-btn" onclick="openEmailLead()" title="Přidat lead z emailu" style="background:var(--bg3);border-color:var(--border);color:var(--text2)">📧</button>
+  <div id="selBar" style="display:none;align-items:center;gap:7px;flex-shrink:0">
+    <span id="selCount" style="font-size:.78rem;color:var(--text2)"></span>
+    <button onclick="deleteSelected()" style="background:#dc2626;border:none;color:#fff;border-radius:6px;padding:5px 11px;cursor:pointer;font-size:.78rem;font-weight:600">🗑️</button>
+    <button onclick="clearSel()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:.78rem">✕</button>
+  </div>
+  <div class="filter-row d-desktop">
+    <select class="flt" id="fazeFilter" onchange="applyFilters()">
+      <option value="">Všechny fáze</option>
+      <option value="volat">Volat 📞</option>
+      <option value="nezvedan1">Nezvedá 1 ☎️</option>
+      <option value="nezvedan2">Nezvedá 2 ☎️</option>
+      <option value="nezvedan3">Nezvedá 3 ☎️</option>
+      <option value="odeslat_email">Odeslat email 📧</option>
+      <option value="email_odeslano">Email odeslán 📤</option>
+      <option value="email_odpoved">Email - odpověď 💬</option>
+      <option value="uzavreno_emailem">Uzavřeno emailem 💚</option>
+      <option value="komunikace_wa">Komunikace na WA 💬</option>
+      <option value="nerelevantni">Nerelevantní ☹️</option>
+      <option value="konec">Konec ❌</option>
+      <option value="domluvena_schuzka">Domluvena schuzka ✅</option>
+      <option value="odeslana_faktura">Odeslana faktura 🧾</option>
+      <option value="uzavreno">Uzavřeno 💚</option>
+    </select>
+    <select class="flt" id="sluzbaFilter" onchange="applyFilters()">
+      <option value="">Vše – služby</option>
+      <option value="tvorba_ai_videi">🎬 AI videa</option>
+      <option value="reklama_marketing">📢 Reklama</option>
+      <option value="video_produkce">📹 Video</option>
+      <option value="jine">🔧 Jiné</option>
+    </select>
+    <select class="flt" id="prodejFilter" onchange="applyFilters()">
+      <option value="">Prodej – vše</option>
+      <option value="yes">✅ Prodáno</option>
+      <option value="no">❌ Neprodáno</option>
+    </select>
+  </div>
+  <button class="icon-btn d-mobile" onclick="openFltSheet()" title="Filtry">⚙️</button>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<div id="view-table">
+  <table>
+    <thead>
+      <tr>
+        <th style="width:36px;text-align:center"><input type="checkbox" id="selAll" onclick="toggleSelAll(this.checked)" style="cursor:pointer;accent-color:var(--accent)"></th>
+        <th onclick="sortBy('datum')" data-col="datum">Datum <span class="si2">▲</span></th>
+        <th onclick="sortBy('jmeno')" data-col="jmeno">Jméno <span class="si2">▲</span></th>
+        <th onclick="sortBy('firma')" data-col="firma">Firma <span class="si2">▲</span></th>
+        <th>Telefon</th>
+        <th>Email</th>
+        <th onclick="sortBy('problem')" data-col="problem">Problém <span class="si2">▲</span></th>
+        <th>Lokalita</th>
+        <th>Služba</th>
+        <th>Poznámka</th>
+        <th onclick="sortBy('stav')" data-col="stav">Fáze <span class="si2">▲</span></th>
+        <th onclick="sortBy('prodej_castka')" data-col="prodej_castka">💰 € <span class="si2">▲</span></th>
+        <th>📦 Produkt</th>
+        <th onclick="sortBy('followup')" data-col="followup">📅 Follow-up <span class="si2">▲</span></th>
+        <th>📝 Poznámky</th>
+        <th>📣 Kampaň</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+<div id="view-cards"></div>
+<div id="view-stats"></div>
+<div id="view-email"></div>
+<div id="view-kampane"></div>
+
+<!-- LOGIN MODAL -->
+<div id="loginModal" class="open">
+  <div class="login-box">
+    <div class="login-logo">V&R Ads</div>
+    <div class="login-title" style="color:var(--text2);font-size:.8rem;font-weight:400;margin-bottom:20px;text-align:center">CRM · Přihlášení</div>
+    <div style="margin-bottom:10px">
+      <span class="p-label">UŽIVATELSKÉ JMÉNO</span>
+      <input class="p-input" id="loginUser" type="text" autocomplete="username" style="margin-top:4px">
+    </div>
+    <div style="margin-bottom:16px">
+      <span class="p-label">HESLO</span>
+      <input class="p-input" id="loginPass" type="password" autocomplete="current-password" style="margin-top:4px" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div id="loginErr" style="color:var(--red);font-size:.75rem;margin-bottom:10px;display:none">Špatné přihlašovací údaje.</div>
+    <button class="btn btn-pri" style="width:100%;padding:9px" onclick="doLogin()">Přihlásit se</button>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+<div class="panel" id="panel">
+  <div class="ph">
+    <div>
+      <div class="ph-name" id="pName"></div>
+      <div class="ph-sub" id="pFirma"></div>
+    </div>
+    <button class="ph-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="pb">
+    <div class="p-actions" id="pActions"></div>
+    <div class="p-grid">
+      <div>
+        <span class="p-label">Stav (kategorie)</span>
+        <select class="p-select" id="pPoz" onchange="savePozFromPanel()">
+          <option value="">— nevybráno —</option>
+          <option value="otevreno">🟡 Otevřeno</option>
+          <option value="uzavreno">🟢 Uzavřeno</option>
+          <option value="konec">🔴 Konec</option>
+        </select>
+      </div>
+      <div>
+        <span class="p-label">Fáze</span>
+        <select class="p-select" id="pStage" onchange="savePanel()">
+          <option value="">— nevybráno —</option>
+          <option value="volat">Volat 📞</option>
+      <option value="nezvedan1">Nezvedá 1 ☎️</option>
+          <option value="nezvedan2">Nezvedá 2 ☎️</option>
+          <option value="nezvedan3">Nezvedá 3 ☎️</option>
+          <option value="odeslat_email">Odeslat email 📧</option>
+          <option value="email_odeslano">Email odeslán 📤</option>
+          <option value="email_odpoved">Email - odpověď 💬</option>
+          <option value="uzavreno_emailem">Uzavřeno emailem 💚</option>
+          <option value="komunikace_wa">Komunikace na WA 💬</option>
+          <option value="nerelevantni">Nerelevantní ☹️</option>
+          <option value="konec">Konec ❌</option>
+          <option value="domluvena_schuzka">Domluvena schuzka ✅</option>
+          <option value="odeslana_faktura">Odeslana faktura 🧾</option>
+          <option value="uzavreno">Uzavřeno 💚</option>
+        </select>
+      </div>
+    </div>
+    <div class="p-grid">
+      <div class="info-box"><div class="lbl">Email</div><div class="val" id="pEmail"></div></div>
+      <div class="info-box"><div class="lbl">Telefon</div><div class="val" id="pTel"></div></div>
+      <div class="info-box p-full"><div class="lbl">Problém / Zájem</div><div class="val" id="pProblem"></div></div>
+      <div class="info-box"><div class="lbl">Lokalita</div><div class="val" id="pLokace"></div></div>
+      <div class="info-box"><div class="lbl">Datum přijetí</div><div class="val" id="pDatum"></div></div>
+    </div>
+    <div id="pCampaignWrap" style="display:none">
+      <div class="info-box" style="background:rgba(59,130,246,.05);border-color:rgba(59,130,246,.25)">
+        <div class="lbl" style="color:#60a5fa">📣 Kampaň</div>
+        <div class="val" id="pCampaignName" style="font-weight:600;margin-bottom:4px"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+          <span id="pPlatform"></span>
+          <span style="font-size:.72rem;color:var(--text3)" id="pAdsetName"></span>
+        </div>
+        <div style="margin-top:4px;font-size:.72rem;color:var(--text2)" id="pWebsite"></div>
+      </div>
+    </div>
+    <div id="pImportedNotesWrap" style="display:none">
+      <span class="p-label">📋 Poznámky z importu</span>
+      <div id="pImportedNotes" style="background:var(--bg3);border-radius:6px;padding:7px 9px;font-size:.75rem;color:var(--text2);margin-top:4px;white-space:pre-wrap"></div>
+    </div>
+    <div class="prodej-sec">
+      <div class="sec-t">💰 Prodej</div>
+      <div class="prodej-grid">
+        <div>
+          <span class="p-label">Částka (€)</span>
+          <input class="p-input" type="number" id="pCastka" placeholder="0" onblur="savePanel()">
+        </div>
+        <div>
+          <span class="p-label">Produkt</span>
+          <select class="p-select" id="pProdukt" onchange="savePanel()">
+            <option value="">— nevybráno —</option>
+            <option value="tvorba_ai_videi">🎬 AI videa</option>
+            <option value="reklama_marketing">📢 Reklama</option>
+            <option value="video_produkce">📹 Video</option>
+            <option value="jine">🔧 Jiné</option>
+          </select>
+        </div>
+        <div class="p-full">
+          <span class="p-label">Poznámka k prodeji</span>
+          <input class="p-input" id="pProdejNote" placeholder="Datum podpisu, podmínky…" onblur="savePanel()">
+        </div>
+      </div>
+    </div>
+    <div>
+      <span class="p-label">📅 Follow-up datum</span>
+      <input class="p-input" type="date" id="pFollowup" onchange="savePanel()">
+    </div>
+    <div>
+      <span class="p-label">📝 Moje poznámky</span>
+      <textarea class="p-textarea" id="pNotes" onblur="savePanel()" style="min-height:90px"></textarea>
+    </div>
+  </div>
+  <div class="ps">
+    <button class="btn btn-pri" style="width:100%" onclick="closePanel()">Zavřít a uložit</button>
+  </div>
+</div>
+
+<!-- IMPORT -->
+<div class="imp-ov" id="impOv">
+  <div class="imp-modal">
+    <h3>📥 Import leadů z XLS / CSV</h3>
+    <div class="drop-z" id="dropZ" onclick="document.getElementById('fInput').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="doDrop(event)">
+      <div class="ic">📂</div>
+      <div style="font-weight:600">Přetáhni soubor nebo klikni</div>
+      <p style="color:var(--text3);font-size:.75rem;margin-top:3px">.xlsx .xls .csv</p>
+      <input type="file" id="fInput" style="display:none" accept=".xlsx,.xls,.csv" onchange="doFile(this.files[0])">
+    </div>
+    <div id="impPrev" style="display:none">
+      <div id="impInfo" style="font-size:.8rem;margin-bottom:5px"></div>
+      <div class="imp-prog"><div class="imp-prog-f" id="progF" style="width:0%"></div></div>
+      <div id="impSt" style="font-size:.72rem;color:var(--text3);margin-top:4px;text-align:center"></div>
+    </div>
+    <div class="imp-foot">
+      <button class="imp-btn imp-btn-s" onclick="closeImport()">Zrušit</button>
+      <button class="imp-btn imp-btn-p" id="impBtn" style="display:none" onclick="doImport()">✅ Importovat</button>
+    </div>
+  </div>
+</div>
+
+<!-- EMAIL LEAD MODAL -->
+<div class="imp-ov" id="emailLeadOv">
+  <div class="imp-modal" style="max-width:460px">
+    <h3>📧 Přidat lead z emailu</h3>
+    <p style="font-size:.75rem;color:var(--text3);margin-bottom:10px">Zkopíruj celý text emailu z formuláře a vlož sem:</p>
+    <textarea id="emailLeadText" placeholder="Jméno: Jan Novák&#10;Email: jan@example.com&#10;Tel. číslo: 777123456&#10;Zpráva: Text zprávy..." style="width:100%;height:160px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.8rem;padding:10px;resize:vertical;font-family:inherit;outline:none" oninput="parseEmailLead()"></textarea>
+    <div id="emailLeadPrev" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:.78rem">
+      <div style="font-weight:600;margin-bottom:6px;color:var(--accent2)">✅ Rozpoznáno:</div>
+      <div id="emailLeadInfo"></div>
+    </div>
+    <div id="emailLeadErr" style="display:none;margin-top:6px;font-size:.75rem;color:var(--red)"></div>
+    <div class="imp-foot" style="margin-top:12px">
+      <button class="imp-btn imp-btn-s" onclick="closeEmailLead()">Zrušit</button>
+      <button class="imp-btn imp-btn-p" id="emailLeadBtn" style="display:none" onclick="doEmailLead()">➕ Přidat lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE FILTER SHEET -->
+<div class="flt-overlay" id="fltOverlay" onclick="closeFltSheet()"></div>
+<div class="flt-sheet" id="fltSheet">
+  <h3>🔍 Filtry</h3>
+  <select class="flt" id="fazeFilterM" onchange="applyFilters()">
+    <option value="">Všechny fáze</option>
+    <option value="nezvedan1">Nezvedá 1 ☎️</option>
+    <option value="nezvedan2">Nezvedá 2 ☎️</option>
+    <option value="nezvedan3">Nezvedá 3 ☎️</option>
+    <option value="odeslat_email">Odeslat email 📧</option>
+    <option value="email_odeslano">Email odeslán 📤</option>
+    <option value="email_odpoved">Email - odpověď 💬</option>
+    <option value="uzavreno_emailem">Uzavřeno emailem 💚</option>
+    <option value="komunikace_wa">Komunikace na WA 💬</option>
+    <option value="nerelevantni">Nerelevantní ☹️</option>
+    <option value="konec">Konec ❌</option>
+    <option value="domluvena_schuzka">Domluvena schuzka ✅</option>
+    <option value="odeslana_faktura">Odeslana faktura 🧾</option>
+    <option value="uzavreno">Uzavřeno 💚</option>
+  </select>
+  <select class="flt" id="sluzbaFilterM" onchange="applyFilters()">
+    <option value="">Vše – služby</option>
+    <option value="tvorba_ai_videi">🎬 AI videa</option>
+    <option value="reklama_marketing">📢 Reklama</option>
+    <option value="video_produkce">📹 Video</option>
+    <option value="jine">🔧 Jiné</option>
+  </select>
+  <select class="flt" id="prodejFilterM" onchange="applyFilters()">
+    <option value="">Prodej – vše</option>
+    <option value="yes">✅ Prodáno</option>
+    <option value="no">❌ Neprodáno</option>
+  </select>
+  <button onclick="closeFltSheet()" style="width:100%;background:var(--accent);border:none;color:#fff;border-radius:8px;padding:10px;cursor:pointer;font-weight:600;font-size:.85rem;margin-top:4px">Použít filtry</button>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bn-btn active" id="bn-table" onclick="setTab('table')"><span class="bn-ic">📋</span>Tabulka</button>
+  <button class="bn-btn" id="bn-stats" onclick="setTab('stats')"><span class="bn-ic">📊</span>Statistiky</button>
+  <button class="bn-btn" id="bn-email" onclick="setTab('email')"><span class="bn-ic">📧</span>Email</button>
+  <button class="bn-btn" id="bn-kampane" onclick="setTab('kampane')"><span class="bn-ic">📣</span>Kampaně</button>
+  <button class="bn-btn" id="bn-import" onclick="openImport()"><span class="bn-ic">📥</span>Import</button>
+</nav>
+
+<script>
+// ── Auth ──────────────────────────────────────────────────────
+const AUTH_KEY='vrads_auth';
+const USER='VAS_LOGIN',PASS='VASE_HESLO';
+function checkAuth(){
+  if(sessionStorage.getItem(AUTH_KEY)==='1'){document.getElementById('loginModal').classList.remove('open');}
+  else{document.getElementById('loginModal').classList.add('open');}
+}
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const err=document.getElementById('loginErr');
+  if(u===USER&&p===PASS){
+    sessionStorage.setItem(AUTH_KEY,'1');
+    document.getElementById('loginModal').classList.remove('open');
+    err.style.display='none';
+    init();setTab('table');
+  }else{err.style.display='';}
+}
+function doLogout(){sessionStorage.removeItem(AUTH_KEY);location.reload();}
+
+// ── Supabase ──────────────────────────────────────────────────
+const SB='https://VAS-PROJEKT.supabase.co';
+const SK='VAS_SUPABASE_ANON_KEY';
+const H={'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json'};
+
+async function sbFetch(url,opts={},ms=20000){
+  const ctrl=new AbortController();
+  const t=setTimeout(()=>ctrl.abort(),ms);
+  try{return await fetch(url,{...opts,signal:ctrl.signal});}
+  catch(e){if(e.name==='AbortError')throw new Error('Timeout – Supabase neodpověděl ('+ms/1000+'s)');throw e;}
+  finally{clearTimeout(t);}
+}
+async function sbGet(p){const r=await sbFetch(SB+p,{headers:H});if(!r.ok)throw new Error(await r.text());const t=await r.text();return t?JSON.parse(t):[];}
+async function sbPost(p,b){const r=await sbFetch(SB+p,{method:'POST',headers:{...H,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());}
+
+// ── Helpers ───────────────────────────────────────────────────
+function isMobile(){return window.innerWidth<=700;}
+function getMesicLabel(m){if(!m)return'';const y=Math.floor(m/100),mo=m%100;const n=['','Led','Úno','Bře','Dub','Kvě','Čer','Čvc','Srp','Zář','Říj','Lis','Pro'];return(n[mo]||mo)+' '+y;}
+function getMesicYear(m){return m?Math.floor(m/100):null;}
+function formatDatum(d){if(!d)return'—';const m=String(d).match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return parseInt(m[3])+'.'+parseInt(m[2])+'.';return String(d);}
+
+// ── Fáze system ───────────────────────────────────────────────
+const FAZE=[
+  {id:'',label:'—',poz:'',cls:'',color:'#64748b'},
+  {id:'volat',label:'Volat 📞',poz:'otevreno',cls:'b-volat',color:'#eab308'},
+  {id:'nezvedan1',label:'Nezvedá 1 ☎️',poz:'otevreno',cls:'b-nz1',color:'#eab308'},
+  {id:'nezvedan2',label:'Nezvedá 2 ☎️',poz:'otevreno',cls:'b-nz2',color:'#f97316'},
+  {id:'nezvedan3',label:'Nezvedá 3 ☎️',poz:'otevreno',cls:'b-nz3',color:'#ef4444'},
+  {id:'odeslat_email',label:'Odeslat email 📧',poz:'otevreno',cls:'b-em',color:'#a855f7'},
+  {id:'email_odeslano',label:'Email odeslán 📤',poz:'otevreno',cls:'b-eo',color:'#6366f1'},
+  {id:'email_odpoved',label:'Email - odpověď 💬',poz:'otevreno',cls:'b-eod',color:'#0ea5e9'},
+  {id:'uzavreno_emailem',label:'Uzavřeno emailem 💚',poz:'uzavreno',cls:'b-uze',color:'#16a34a'},
+  {id:'komunikace_wa',label:'Komunikace na WA 💬',poz:'otevreno',cls:'b-wa',color:'#25d366'},
+  {id:'nerelevantni',label:'Nerelevantní ☹️',poz:'konec',cls:'b-konec',color:'#ef4444'},
+  {id:'konec',label:'Konec ❌',poz:'konec',cls:'b-konec',color:'#ef4444'},
+  {id:'domluvena_schuzka',label:'Domluvena schuzka ✅',poz:'otevreno',cls:'b-ds',color:'#22c55e'},
+  {id:'odeslana_faktura',label:'Odeslana faktura 🧾',poz:'otevreno',cls:'b-ds',color:'#3b82f6'},
+  {id:'uzavreno',label:'Uzavřeno 💚',poz:'uzavreno',cls:'b-ds',color:'#16a34a'},
+];
+const FAZE_MAP={};FAZE.forEach(f=>FAZE_MAP[f.id]=f);
+
+// Migrate old stav values
+const OLD_STAV={'novy':'','email_ready':'odeslat_email','kontaktovan':'odeslat_email','volat':'nezvedan1','uzavren':'domluvena_schuzka','konec':'nerelevantni'};
+function migrateStav(s){if(FAZE_MAP.hasOwnProperty(s))return s;return OLD_STAV[s]||'';}
+
+function getPoz(stav){return(FAZE_MAP[stav]||FAZE[0]).poz;}
+function getFazeInfo(stav){return FAZE_MAP[stav]||FAZE[0];}
+
+// Poznámka (category) display
+const POZ_LABEL={'otevreno':'🟡 otevřeno','uzavreno':'🟢 uzavřeno','konec':'🔴 konec','':''};
+const POZ_CLS={'otevreno':'p-ot','uzavreno':'p-uz','konec':'p-ko','':''};
+// When user sets poznámka category directly → default fáze
+const POZ_DEFAULT={'otevreno':'nezvedan1','uzavreno':'nerelevantni','konec':'domluvena_schuzka','':''};
+
+const SLUZBA={'tvorba_ai_videi':'🎬 AI videa','reklama_marketing':'📢 Reklama','video_produkce':'📹 Video','jine':'🔧 Jiné','':''};
+const MONTH_NAMES=['','Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
+
+let leads=[],currentLead=null,currentTab='table';
+let sortCol='datum',sortDir=1;
+let filterPoz='',filterFaze='',filterSluzba='',filterSearch='',filterProdej='';
+let statsMonth=null,impD=[];
+let selected=new Set();
+let fbSpend={};
+
+// ── Poznámka (poz) — uložena lokálně, nezávislá na fázi ──────
+function savePozLocal(email,poz){try{localStorage.setItem('vp_'+btoa(unescape(encodeURIComponent(email))).slice(0,20),poz);}catch{}}
+function loadPozLocal(email){try{return localStorage.getItem('vp_'+btoa(unescape(encodeURIComponent(email))).slice(0,20))||'';}catch{return'';}}
+
+
+function toggleSel(email,checked){
+  if(checked)selected.add(email);else selected.delete(email);
+  updateSelBar();
+}
+function toggleSelAll(checked){
+  const filtered=getFiltered();
+  filtered.forEach(l=>{if(checked)selected.add(l.email);else selected.delete(l.email);});
+  updateSelBar();
+  renderTable();
+}
+function clearSel(){selected.clear();updateSelBar();renderTable();}
+function updateSelBar(){
+  const n=selected.size;
+  const bar=document.getElementById('selBar');
+  const cnt=document.getElementById('selCount');
+  bar.style.display=n>0?'flex':'none';
+  cnt.textContent=n+' vybraných';
+  const sa=document.getElementById('selAll');
+  if(sa){const f=getFiltered();sa.checked=f.length>0&&f.every(l=>selected.has(l.email));sa.indeterminate=!sa.checked&&f.some(l=>selected.has(l.email));}
+}
+async function deleteSelected(){
+  if(!selected.size)return;
+  if(!confirm('Opravdu smazat '+selected.size+' leadů? Tato akce je nevratná.'))return;
+  showSync('🗑️ Mažu…','#dc2626');
+  try{
+    const emails=[...selected];
+    // Delete in batches of 50
+    for(let i=0;i<emails.length;i+=50){
+      const batch=emails.slice(i,i+50);
+      const filter=batch.map(e=>'email.eq.'+encodeURIComponent(e)).join(',');
+      // Delete from crm_data first
+      const r1=await fetch(SB+'/rest/v1/crm_data?or=('+filter+')',{method:'DELETE',headers:H});
+      if(!r1.ok)throw new Error(await r1.text());
+      // Delete from leads
+      const r2=await fetch(SB+'/rest/v1/leads?or=('+filter+')',{method:'DELETE',headers:H});
+      if(!r2.ok)throw new Error(await r2.text());
+    }
+    leads=leads.filter(l=>!selected.has(l.email));
+    selected.clear();
+    updateSelBar();
+    showSync('✅ Smazáno','#16a34a');
+    render();
+  }catch(e){showSync('⚠️ '+e.message,'#dc2626');}
+}
+
+// ── Phone fix ─────────────────────────────────────────────────
+function fixPhone(s){
+  s=String(s||'').trim();
+  // Fix scientific notation e.g. "4.20722E+11"
+  if(/^-?[\d.]+[eE][+\-]?\d+$/.test(s)){const n=parseFloat(s);if(!isNaN(n)&&n>0)s=Math.round(n).toString();}
+  return s;
+}
+function telNum(raw){return fixPhone(raw).replace(/[^+0-9]/g,'');}
+
+// ── Data ──────────────────────────────────────────────────────
+async function init(){
+  showLoading(true);showSync('⏳ Načítám…','#64748b');
+  try{
+    const[ls,cs,fs]=await Promise.all([
+      sbGet('/rest/v1/leads?order=mesic.asc,id.asc&limit=5000'),
+      sbGet('/rest/v1/crm_data?limit=5000'),
+      sbGet('/rest/v1/fb_spend?limit=1000')
+    ]);
+    const cm={};(cs||[]).forEach(r=>{cm[r.email]=r;});
+    fbSpend={};(fs||[]).forEach(r=>{fbSpend[r.campaign_name]=r.spend;});
+    leads=(ls||[]).map(l=>{
+      const c=cm[l.email]||{};
+      const rawStav=c.stav||l.stav||'';
+      return{...l,_id:l.id,
+        stav:migrateStav(rawStav),
+        prodej_castka:c.prodej_castka||'',
+        prodej_produkt:c.prodej_produkt||'',
+        prodej_note:c.prodej_note||'',
+        followup:c.followup||'',
+        myNotes:c.my_notes||'',
+        poz:loadPozLocal(l.email)||'',
+      };
+    });
+    showSync('✅ '+leads.length+' leadů · '+new Date().toLocaleTimeString('cs',{hour:'2-digit',minute:'2-digit'}),'#16a34a');
+    render();
+  }catch(e){showSync('❌ '+e.message,'#dc2626');}
+  showLoading(false);
+}
+
+async function saveToApi(lead){
+  showSync('💾 Ukládám…','#d97706');
+  try{
+    const idx=leads.findIndex(l=>l.email===lead.email);
+    if(idx>=0)leads[idx]={...leads[idx],...lead};
+    const data={
+      stav:lead.stav,
+      prodej_castka:lead.prodej_castka||null,
+      prodej_produkt:lead.prodej_produkt||null,
+      prodej_note:lead.prodej_note||null,
+      followup:lead.followup||null,
+      my_notes:lead.myNotes||null,
+      updated_at:new Date().toISOString()
+    };
+    const enc=encodeURIComponent(lead.email);
+    // PATCH first — return=representation gives us the updated rows as JSON (CORS-safe)
+    const pr=await fetch(SB+'/rest/v1/crm_data?email=eq.'+enc,{
+      method:'PATCH',
+      headers:{...H,'Prefer':'return=representation'},
+      body:JSON.stringify(data)
+    });
+    if(!pr.ok)throw new Error(await pr.text());
+    const updated=await pr.json();
+    // If PATCH updated 0 rows → row doesn't exist yet, INSERT it
+    if(!updated||updated.length===0){
+      const ir=await fetch(SB+'/rest/v1/crm_data',{
+        method:'POST',
+        headers:{...H,'Prefer':'return=minimal'},
+        body:JSON.stringify({email:lead.email,...data})
+      });
+      if(!ir.ok)throw new Error(await ir.text());
+    }
+    showSync('✅ Uloženo','#16a34a');
+  }catch(e){showSync('⚠️ '+e.message,'#d97706');}
+}
+
+function showLoading(on){
+  let el=document.getElementById('loadBar');
+  if(!el){el=document.createElement('div');el.id='loadBar';el.style.cssText='position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#6c63ff,#a855f7);z-index:999';document.body.prepend(el);}
+  el.style.display=on?'block':'none';
+}
+function showSync(msg,color){const el=document.getElementById('syncLbl');if(el){el.textContent=msg;el.style.color=color;}}
+
+// ── Filters ───────────────────────────────────────────────────
+function getFiltered(){
+  return leads.filter(l=>{
+    const poz=l.poz||'';
+    if(filterPoz&&poz!==filterPoz)return false;
+    if(filterFaze&&l.stav!==filterFaze)return false;
+    if(filterSluzba&&l.sluzba!==filterSluzba)return false;
+    if(filterProdej==='yes'&&!l.prodej_castka)return false;
+    if(filterProdej==='no'&&l.prodej_castka)return false;
+    if(filterSearch){
+      const q=filterSearch.toLowerCase();
+      if(!((l.jmeno||'').toLowerCase().includes(q)||(l.firma||'').toLowerCase().includes(q)||(l.email||'').toLowerCase().includes(q)||fixPhone(l.telefon||'').includes(q)||(l.problem||'').toLowerCase().includes(q)))return false;
+    }
+    return true;
+  });
+}
+function applyFilters(){
+  filterSearch=document.getElementById('searchInput').value.trim();
+  const mob=isMobile();
+  filterFaze=(mob?document.getElementById('fazeFilterM'):document.getElementById('fazeFilter')).value;
+  filterSluzba=(mob?document.getElementById('sluzbaFilterM'):document.getElementById('sluzbaFilter')).value;
+  filterProdej=(mob?document.getElementById('prodejFilterM'):document.getElementById('prodejFilter')).value;
+  render();
+}
+function setFilterPoz(p){filterPoz=filterPoz===p?'':p;render();}
+
+// ── Tabs & Sort ───────────────────────────────────────────────
+function setTab(t){
+  currentTab=t;
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['table','stats','email','kampane'][i]===t));
+  ['table','stats','email','kampane'].forEach(id=>{const el=document.getElementById('bn-'+id);if(el)el.classList.toggle('active',id===t);});
+  const mob=isMobile();
+  document.getElementById('view-table').style.display=(t==='table'&&!mob)?'':'none';
+  document.getElementById('view-cards').style.display=(t==='table'&&mob)?'block':'none';
+  document.getElementById('view-stats').style.display=t==='stats'?'block':'none';
+  document.getElementById('view-email').style.display=t==='email'?'block':'none';
+  document.getElementById('view-kampane').style.display=t==='kampane'?'block':'none';
+  render();
+}
+function sortBy(col){
+  if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}
+  document.querySelectorAll('th[data-col]').forEach(th=>{
+    th.classList.toggle('sorted',th.dataset.col===col);
+    const ico=th.querySelector('.si2');
+    if(ico)ico.textContent=th.dataset.col===col?(sortDir===1?'▲':'▼'):'▲';
+  });
+  renderTable();
+}
+function render(){
+  renderStatsBar();
+  if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
+  else if(currentTab==='stats')renderStatsView();
+  else if(currentTab==='kampane')renderKampane();
+  else if(currentTab==='email')renderEmail();
+}
+
+// ── Stats bar ─────────────────────────────────────────────────
+function renderStatsBar(){
+  const bar=document.getElementById('statsBar');
+  const ot=leads.filter(l=>(l.poz||'')==='otevreno').length;
+  const uz=leads.filter(l=>(l.poz||'')==='uzavreno').length;
+  const ko=leads.filter(l=>(l.poz||'')==='konec').length;
+  const no=leads.filter(l=>!(l.poz||'')).length;
+  const today=new Date().toISOString().slice(0,10);
+  const fuRed=leads.filter(l=>l.followup&&l.followup<=today&&l.stav!=='konec'&&l.stav!=='nerelevantni'&&l.stav!=='nezvedan3'&&l.stav!=='uzavreno'&&l.stav!=='uzavreno_emailem').length;
+  const mk=(label,count,f,color)=>`<div class="stt${filterPoz===f?' on':''}" onclick="setFilterPoz('${f}')"><span class="stt-n" style="color:${color}">${count}</span><span class="stt-l">${label}</span></div>`;
+  bar.innerHTML=`
+    <div class="stt${!filterPoz?' on':''}" onclick="setFilterPoz('')"><span class="stt-n" style="color:var(--text)">${leads.length}</span><span class="stt-l">Celkem</span></div>
+    ${mk('Otevřeno',ot,'otevreno','#eab308')}
+    ${mk('Uzavřeno',uz,'uzavreno','#22c55e')}
+    ${mk('Konec',ko,'konec','#ef4444')}
+    ${no>0?mk('Bez statusu',no,'','#64748b'):''}
+    <div style="width:1px;background:var(--border);margin:0 4px;align-self:stretch"></div>
+    <div class="stt" onclick="setTab('table')" title="Leady s prošlým follow-up"><span class="stt-n" style="color:${fuRed>0?'#ef4444':'var(--text3)'}">${fuRed}</span><span class="stt-l">⏰ Follow-up</span></div>
+  `;
+}
+
+// ── Table ─────────────────────────────────────────────────────
+function renderTable(){
+  const filtered=getFiltered();
+  const sorted=[...filtered].sort((a,b)=>{
+    let va=a[sortCol]||'',vb=b[sortCol]||'';
+    if(sortCol==='prodej_castka'){va=parseFloat(va)||0;vb=parseFloat(vb)||0;return(va-vb)*sortDir;}
+    return String(va).localeCompare(String(vb),'cs')*sortDir;
+  });
+  const tb=document.getElementById('tableBody');
+  if(!sorted.length){tb.innerHTML=`<tr><td colspan="16" style="text-align:center;color:var(--text3);padding:36px">Žádné výsledky</td></tr>`;return;}
+  const today=new Date().toISOString().slice(0,10);
+  tb.innerHTML=sorted.map(l=>{
+    const finfo=getFazeInfo(l.stav);
+    const poz=l.poz||'';
+    const tel=telNum(l.telefon);
+    const castka=l.prodej_castka?`<span class="prodej-val">${Number(l.prodej_castka).toLocaleString('cs')} €</span>`:'<span style="color:var(--text3)">—</span>';
+    const produkt=l.prodej_produkt?`<span style="font-size:.68rem">${SLUZBA[l.prodej_produkt]||l.prodej_produkt}</span>`:'<span style="color:var(--text3)">—</span>';
+    const slzBadge=l.sluzba&&SLUZBA[l.sluzba]?`<span style="font-size:.68rem;background:rgba(108,99,255,.15);color:var(--accent2);padding:2px 5px;border-radius:3px">${SLUZBA[l.sluzba]}</span>`:'';
+    const pozOpts=['','otevreno','uzavreno','konec'].map(v=>`<option value="${v}"${poz===v?' selected':''}>${POZ_LABEL[v]||'—'}</option>`).join('');
+    const pozCell=`<select class="cell-sel ${POZ_CLS[poz]||''}" onchange="changePoz('${esc(l.email)}',this.value)" onclick="event.stopPropagation()">${pozOpts}</select>`;
+    const fazeOpts=FAZE.map(f=>`<option value="${f.id}"${l.stav===f.id?' selected':''}>${f.label}</option>`).join('');
+    const isKonec=l.stav==='konec'||l.stav==='nerelevantni'||l.stav==='nezvedan3';
+    const fuColor=isKonec?'var(--text3)':l.followup&&l.followup<=today?'var(--red)':l.followup?'var(--accent2)':'var(--text3)';
+    const fazeCell=`<div style="display:flex;flex-direction:column;gap:2px"><select class="cell-sel ${finfo.cls}" onchange="changeFaze('${esc(l.email)}',this.value)" onclick="event.stopPropagation()" style="color:${finfo.color}">${fazeOpts}</select><div onclick="event.stopPropagation()" style="display:flex;align-items:center;gap:2px;font-size:.64rem;color:${fuColor};opacity:${isKonec?'0.25':'1'}">📅<input type="date" value="${l.followup||''}" onchange="changeFollowup('${esc(l.email)}',this.value)" onclick="event.stopPropagation()" title="Datum volání" style="background:transparent;border:none;color:${fuColor};font-size:.64rem;cursor:pointer;outline:none;font-family:inherit;width:88px;padding:0"></div></div>`;
+    const phoneDisplay=fixPhone(l.telefon||'');
+    return`<tr onclick="openLead(${l._id})" style="${selected.has(l.email)?'background:rgba(220,38,38,.08)':''}">
+      <td style="text-align:center;width:36px" onclick="event.stopPropagation()"><input type="checkbox" ${selected.has(l.email)?'checked':''} onchange="toggleSel('${esc(l.email)}',this.checked)" style="cursor:pointer;accent-color:var(--accent)"></td>
+      <td style="color:var(--text3);min-width:55px">${formatDatum(l.datum)}</td>
+      <td style="font-weight:600;max-width:130px">${esc(l.jmeno||'')}</td>
+      <td style="color:var(--text2);max-width:120px">${l.firma?`<a class="link" href="${l.website&&l.website.startsWith('http')?esc(l.website):'https://www.google.com/search?q='+encodeURIComponent(l.firma)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(l.firma)}</a>`:''}</td>
+      <td style="min-width:110px">${tel?`<a class="link" href="tel:${tel}" onclick="event.stopPropagation()">${esc(phoneDisplay)}</a>`:esc(phoneDisplay)}</td>
+      <td style="max-width:150px"><a class="link" href="mailto:${esc(l.email||'')}" onclick="event.stopPropagation()">${esc(l.email||'')}</a></td>
+      <td style="color:var(--text2);max-width:160px">${esc(l.problem||'')}</td>
+      <td style="color:var(--text3)">${esc(l.lokace||'')}</td>
+      <td>${slzBadge}</td>
+      <td style="min-width:110px">${pozCell}</td>
+      <td style="min-width:160px">${fazeCell}</td>
+      <td>${castka}</td>
+      <td>${produkt}</td>
+      <td style="color:${isKonec?'var(--text3)':(l.stav==='uzavreno'||l.stav==='uzavreno_emailem')&&l.followup?'var(--green)':l.followup&&l.followup<=today?'var(--red)':'var(--text2)'};opacity:${isKonec?'0.35':'1'}">${l.followup||'—'}</td>
+      <td style="color:var(--text2);max-width:220px;font-size:.72rem">${esc(l.myNotes||l.notes||'')}</td>
+      <td style="max-width:160px;white-space:nowrap">${l.platform?`<span class="plat-tag plat-${l.platform}">${l.platform.toUpperCase()}</span> `:''}${(l.ad_name||l.campaign_name)?`<span class="camp-tag" title="${esc(l.campaign_name||'')}">${esc(l.ad_name||l.campaign_name)}</span>`:'<span style="color:var(--text3)">—</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Mobile cards ──────────────────────────────────────────────
+function renderCards(){
+  const filtered=getFiltered();
+  const sorted=[...filtered].sort((a,b)=>String(a.datum||'').localeCompare(String(b.datum||''),'cs')*-1);
+  const cb=document.getElementById('view-cards');
+  if(!sorted.length){cb.innerHTML=`<div style="text-align:center;color:var(--text3);padding:48px 20px;font-size:.88rem">Žádné výsledky</div>`;return;}
+  const today=new Date().toISOString().slice(0,10);
+  cb.innerHTML=sorted.map(l=>{
+    const finfo=getFazeInfo(l.stav);
+    const tel=telNum(l.telefon);
+    const note=l.myNotes||l.notes||'';
+    const castka=l.prodej_castka?`<span style="color:var(--green);font-weight:700;font-size:.8rem">${Number(l.prodej_castka).toLocaleString('cs')} €</span>`:'';
+    const isKonecCard=l.stav==='konec'||l.stav==='nerelevantni'||l.stav==='nezvedan3';
+    const fuC=isKonecCard?'var(--text3)':(l.stav==='uzavreno'||l.stav==='uzavreno_emailem')?'var(--green)':l.followup<=today?'var(--red)':'var(--text3)';
+    const fu=l.followup?`<span style="font-size:.7rem;color:${fuC};opacity:${isKonecCard?'0.35':'1'}">📅 ${l.followup}</span>`:'';
+    return`<div class="lead-card" onclick="openLead(${l._id})">
+      <div class="lead-card-top">
+        <div>
+          <div class="lead-card-name">${esc(l.jmeno||'Neznámý')}</div>
+          ${l.firma?`<div class="lead-card-firma"><a class="link" href="${l.website&&l.website.startsWith('http')?esc(l.website):'https://www.google.com/search?q='+encodeURIComponent(l.firma)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(l.firma)}</a></div>`:''}
+          ${(l.ad_name||l.campaign_name)?`<div style="margin-top:3px;display:flex;align-items:center;gap:4px">${l.platform?`<span class="plat-tag plat-${l.platform}">${l.platform.toUpperCase()}</span>`:''}<span class="camp-tag" title="${esc(l.campaign_name||'')}">${esc(l.ad_name||l.campaign_name)}</span></div>`:''}
+        </div>
+        <div class="lead-card-badges">
+          <span class="badge ${finfo.cls}" style="color:${finfo.color}">${finfo.label}</span>
+          ${castka}
+        </div>
+      </div>
+      ${l.problem||fu?`<div class="lead-card-mid">
+        ${l.problem?`<span style="font-size:.75rem;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.problem)}</span>`:''}
+        ${fu}
+      </div>`:''}
+      <div class="lead-card-bottom">
+        <div class="lead-card-note">${note?'📝 '+esc(note):''}</div>
+        <div class="lead-card-acts" onclick="event.stopPropagation()">
+          ${tel?`<a class="card-act" href="tel:${tel}">📞</a>`:''}
+          ${l.email?`<a class="card-act" href="mailto:${esc(l.email)}">✉️</a>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Inline change handlers
+async function changeFaze(email,newStav){
+  const lead=leads.find(l=>l.email===email);if(!lead)return;
+  lead.stav=newStav;
+  await saveToApi(lead);
+  renderStatsBar();renderTable();
+}
+async function changePoz(email,newPoz){
+  const lead=leads.find(l=>l.email===email);if(!lead)return;
+  lead.poz=newPoz;
+  savePozLocal(email,newPoz);
+  renderStatsBar();renderTable();
+}
+async function changeFollowup(email,newDate){
+  const lead=leads.find(l=>l.email===email);if(!lead)return;
+  lead.followup=newDate;
+  await saveToApi(lead);
+  renderTable();
+}
+
+// ── Stats view ────────────────────────────────────────────────
+function getLeadMonth(l){return l.mesic||null;}
+function getMonths(){const m=new Set();leads.forEach(l=>{const x=getLeadMonth(l);if(x)m.add(x);});return[...m].sort((a,b)=>a-b);}
+
+function renderStatsView(){
+  const sv=document.getElementById('view-stats');
+  const months=getMonths();
+  const today=new Date().toISOString().slice(0,10);
+  const allProd=leads.filter(l=>l.prodej_castka&&parseFloat(l.prodej_castka)>0);
+  const totalYear=allProd.reduce((s,l)=>s+(parseFloat(l.prodej_castka)||0),0);
+  const monthData=months.map(m=>{
+    const ml=leads.filter(l=>getLeadMonth(l)===m);
+    const mp=ml.filter(l=>l.prodej_castka&&parseFloat(l.prodej_castka)>0);
+    return{month:m,name:MONTH_NAMES[m%100],leads:ml.length,prodano:mp.length,
+      obrat:mp.reduce((s,l)=>s+(parseFloat(l.prodej_castka)||0),0),
+      konec:ml.filter(l=>(l.poz||'')==='konec').length};
+  });
+  let h=`<div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 18px 0;position:sticky;top:0;z-index:5">`;
+  h+=`<div style="display:flex;align-items:center;gap:18px;margin-bottom:8px;flex-wrap:wrap">
+    <div style="font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">2026 celkem</div>
+    <span style="font-size:1.25rem;font-weight:700;color:var(--green)">${Number(totalYear).toLocaleString('cs')} €</span>
+    <span style="color:var(--text2);font-size:.82rem">${allProd.length} prodejů z ${leads.length} leadů</span>
+  </div>`;
+  h+=`<div style="display:flex;gap:3px;overflow-x:auto;padding-bottom:1px">
+    <button onclick="statsMonth=null;renderStatsView()" style="background:${!statsMonth?'var(--accent)':'var(--bg3)'};border:1px solid ${!statsMonth?'var(--accent)':'var(--border)'};color:${!statsMonth?'#fff':'var(--text2)'};border-radius:5px 5px 0 0;padding:5px 12px;cursor:pointer;font-size:.78rem;font-weight:500;white-space:nowrap;border-bottom:none">📊 Srovnání</button>`;
+  monthData.forEach(md=>{const active=statsMonth===md.month;
+    h+=`<button onclick="statsMonth=${md.month};renderStatsView()" style="background:${active?'var(--accent)':'var(--bg3)'};border:1px solid ${active?'var(--accent)':'var(--border)'};color:${active?'#fff':'var(--text2)'};border-radius:5px 5px 0 0;padding:5px 12px;cursor:pointer;font-size:.78rem;white-space:nowrap;border-bottom:none;position:relative">
+      ${md.name}${md.obrat>0?`<span style="position:absolute;top:-5px;right:-3px;background:var(--green);color:#fff;border-radius:7px;padding:0 4px;font-size:.58rem;font-weight:700">${Number(md.obrat).toLocaleString('cs')}€</span>`:''}
+    </button>`;
+  });
+  h+=`</div></div><div style="padding:18px">`;
+  if(!statsMonth){
+    const maxO=Math.max(...monthData.map(m=>m.obrat),1),maxL=Math.max(...monthData.map(m=>m.leads),1);
+    h+=`<div class="chart-box" style="margin-bottom:14px"><h3>💰 Obrat po měsících</h3>
+    <div style="display:flex;align-items:flex-end;gap:7px;height:140px;padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:8px">`;
+    monthData.forEach(md=>{const barH=Math.max(Math.round(md.obrat/maxO*120),md.obrat>0?7:2);
+      h+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer" onclick="statsMonth=${md.month};renderStatsView()">
+        <div style="font-size:.65rem;color:var(--green);font-weight:600">${md.obrat>0?Number(md.obrat).toLocaleString('cs')+'€':''}</div>
+        <div style="width:100%;background:${md.obrat>0?'var(--green)':'var(--border)'};border-radius:3px 3px 0 0;height:${barH}px;opacity:${md.obrat>0?1:.4}"></div>
+        <div style="font-size:.65rem;color:var(--text2)">${md.name}</div>
+        <div style="font-size:.6rem;color:var(--text3)">${md.prodano}p</div>
+      </div>`;
+    });
+    h+=`</div></div>`;
+    h+=`<div class="chart-box"><h3>📋 Přehled po měsících</h3>
+    <table class="pt"><thead><tr><th>Měsíc</th><th style="text-align:right">Leady</th><th style="text-align:right">Prodáno</th><th style="text-align:right">Konverze</th><th style="text-align:right">Konec</th><th style="text-align:right">Obrat</th></tr></thead><tbody>`;
+    monthData.forEach(md=>{const konv=md.leads?Math.round(md.prodano/md.leads*100):0;
+      h+=`<tr style="cursor:pointer" onclick="statsMonth=${md.month};renderStatsView()">
+        <td style="font-weight:600">${md.name}</td><td style="text-align:right">${md.leads}</td>
+        <td style="text-align:right;color:var(--accent2)">${md.prodano}</td>
+        <td style="text-align:right;color:${konv>10?'var(--green)':konv>5?'var(--yellow)':'var(--text2)'}">${konv}%</td>
+        <td style="text-align:right;color:var(--red)">${md.konec}</td>
+        <td style="text-align:right;color:var(--green);font-weight:600">${md.obrat>0?Number(md.obrat).toLocaleString('cs')+' €':'—'}</td>
+      </tr>`;
+    });
+    const totKonv=leads.length?Math.round(allProd.length/leads.length*100):0;
+    h+=`<tr style="border-top:2px solid var(--border);font-weight:700">
+      <td>CELKEM</td><td style="text-align:right">${leads.length}</td>
+      <td style="text-align:right;color:var(--accent2)">${allProd.length}</td>
+      <td style="text-align:right;color:var(--green)">${totKonv}%</td>
+      <td style="text-align:right;color:var(--red)">${leads.filter(l=>(l.poz||'')==='konec').length}</td>
+      <td style="text-align:right;color:var(--green)">${Number(totalYear).toLocaleString('cs')} €</td>
+    </tr></tbody></table></div>`;
+  }else{
+    const ml=leads.filter(l=>getLeadMonth(l)===statsMonth);
+    const mp=ml.filter(l=>l.prodej_castka&&parseFloat(l.prodej_castka)>0);
+    const mTotal=mp.reduce((s,l)=>s+(parseFloat(l.prodej_castka)||0),0);
+    const mths=getMonths();const idx=mths.indexOf(statsMonth);
+    const prev=idx>0?mths[idx-1]:null;const nxt=idx<mths.length-1?mths[idx+1]:null;
+    h+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      ${prev?`<button onclick="statsMonth=${prev};renderStatsView()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:5px;padding:5px 10px;cursor:pointer;font-size:.75rem">← ${MONTH_NAMES[prev%100]}</button>`:'<div></div>'}
+      <h2 style="flex:1;text-align:center;font-size:1rem">${MONTH_NAMES[statsMonth%100]} ${Math.floor(statsMonth/100)}</h2>
+      ${nxt?`<button onclick="statsMonth=${nxt};renderStatsView()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:5px;padding:5px 10px;cursor:pointer;font-size:.75rem">${MONTH_NAMES[nxt%100]} →</button>`:'<div></div>'}
+    </div>`;
+    const ot=ml.filter(l=>(l.poz||'')==='otevreno').length;
+    const uz=ml.filter(l=>(l.poz||'')==='uzavreno').length;
+    const ko=ml.filter(l=>(l.poz||'')==='konec').length;
+    h+=`<div class="stats-grid">
+      <div class="kpi"><div class="kpi-val" style="color:var(--green)">${Number(mTotal).toLocaleString('cs')} €</div><div class="kpi-label">Obrat</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:var(--accent2)">${mp.length}</div><div class="kpi-label">Prodáno</div><div class="kpi-sub">z ${ml.length} leadů (${ml.length?Math.round(mp.length/ml.length*100):0}%)</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:#eab308">${ot}</div><div class="kpi-label">Otevřeno</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:#22c55e">${uz}</div><div class="kpi-label">Uzavřeno</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:#ef4444">${ko}</div><div class="kpi-label">Konec</div></div>
+    </div>`;
+    // Fáze breakdown
+    const fazeCounts={};ml.forEach(l=>{fazeCounts[l.stav]=(fazeCounts[l.stav]||0)+1;});
+    const maxF=Math.max(...FAZE.slice(1).map(f=>fazeCounts[f.id]||0),1);
+    h+=`<div class="chart-box" style="margin-bottom:14px"><h3>Leady podle fáze</h3>`;
+    FAZE.slice(1).forEach(f=>{const cnt=fazeCounts[f.id]||0;const pct=Math.round(cnt/maxF*100);
+      h+=`<div class="bar-row"><div class="bar-label">${f.label}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${f.color}">${cnt>0?cnt:''}</div></div><div class="bar-count">${cnt}</div></div>`;
+    });
+    h+=`</div>`;
+    if(mp.length>0){
+      const sorted=[...mp].sort((a,b)=>(parseFloat(b.prodej_castka)||0)-(parseFloat(a.prodej_castka)||0));
+      h+=`<div class="chart-box"><h3>💰 Prodeje – ${MONTH_NAMES[statsMonth%100]}</h3>
+      <table class="pt"><thead><tr><th>Jméno</th><th>Firma</th><th>Produkt</th><th style="text-align:right">Částka</th></tr></thead><tbody>`;
+      sorted.forEach(l=>{h+=`<tr style="cursor:pointer" onclick="openLead(${l._id})"><td style="font-weight:600">${esc(l.jmeno||'')}</td><td>${esc(l.firma||'')}</td><td>${SLUZBA[l.prodej_produkt]||'—'}</td><td style="text-align:right;color:var(--green);font-weight:600">${Number(l.prodej_castka).toLocaleString('cs')} €</td></tr>`;});
+      h+=`<tr style="border-top:2px solid var(--border)"><td colspan="3" style="font-weight:600">CELKEM</td><td style="text-align:right;color:var(--green);font-weight:700;font-size:.95rem">${Number(mTotal).toLocaleString('cs')} €</td></tr>`;
+      h+=`</tbody></table></div>`;
+    }
+  }
+  h+=`</div>`;sv.innerHTML=h;
+}
+
+// ── Volat view ────────────────────────────────────────────────
+// ── Email Marketing ───────────────────────────────────────────
+function renderEmail(){
+  const vv=document.getElementById('view-email');
+  const EMAIL_STAGES=['odeslat_email','email_odeslano','email_odpoved'];
+  const cekaji=leads.filter(l=>l.stav==='odeslat_email');
+  const odeslano=leads.filter(l=>l.stav==='email_odeslano');
+  const odpoved=leads.filter(l=>l.stav==='email_odpoved');
+  // Uzavřeno: leady kteří prošli emailem (email v jejich historii není sledován, ale zobrazíme uzavřené co mají email adresu jako approximaci)
+  const uzavreno=leads.filter(l=>l.stav==='uzavreno_emailem');
+  const totalEmail=cekaji.length+odeslano.length+odpoved.length+uzavreno.length;
+  const konverzRate=totalEmail>0?Math.round(uzavreno.length/totalEmail*100):0;
+
+  // ── KPI cards ──────────────────────────────────────────────
+  let h=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:1.6rem;font-weight:700;color:#a855f7">${cekaji.length}</div>
+      <div style="font-size:.72rem;color:var(--text3);margin-top:2px">📧 Čeká na email</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:1.6rem;font-weight:700;color:#6366f1">${odeslano.length}</div>
+      <div style="font-size:.72rem;color:var(--text3);margin-top:2px">📤 Odesláno</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:1.6rem;font-weight:700;color:#0ea5e9">${odpoved.length}</div>
+      <div style="font-size:.72rem;color:var(--text3);margin-top:2px">💬 Odpověděli</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:1.6rem;font-weight:700;color:#22c55e">${uzavreno.length}</div>
+      <div style="font-size:.72rem;color:var(--text3);margin-top:2px">✅ Uzavřeno</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:1.6rem;font-weight:700;color:${konverzRate>=20?'#22c55e':konverzRate>=10?'#eab308':'#ef4444'}">${konverzRate}%</div>
+      <div style="font-size:.72rem;color:var(--text3);margin-top:2px">🎯 Konverze</div>
+    </div>
+  </div>`;
+
+  // ── Funnel bar ──────────────────────────────────────────────
+  if(totalEmail>0){
+    const pct=(n)=>Math.max(4,Math.round(n/totalEmail*100));
+    h+=`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:18px">
+      <div style="font-size:.75rem;color:var(--text3);margin-bottom:8px;font-weight:600">FUNNEL</div>
+      <div style="display:flex;gap:3px;border-radius:6px;overflow:hidden;height:12px">
+        <div style="width:${pct(cekaji.length)}%;background:#a855f7" title="Čeká: ${cekaji.length}"></div>
+        <div style="width:${pct(odeslano.length)}%;background:#6366f1" title="Odesláno: ${odeslano.length}"></div>
+        <div style="width:${pct(odpoved.length)}%;background:#0ea5e9" title="Odpovědi: ${odpoved.length}"></div>
+        <div style="width:${pct(uzavreno.length)}%;background:#22c55e" title="Uzavřeno: ${uzavreno.length}"></div>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:6px;flex-wrap:wrap">
+        <span style="font-size:.68rem;color:#a855f7">● Čeká ${cekaji.length}</span>
+        <span style="font-size:.68rem;color:#6366f1">● Odesláno ${odeslano.length}</span>
+        <span style="font-size:.68rem;color:#0ea5e9">● Odpovědi ${odpoved.length}</span>
+        <span style="font-size:.68rem;color:#22c55e">● Uzavřeno ${uzavreno.length}</span>
+      </div>
+    </div>`;
+  }
+
+  // ── Zpracovat drafty button ──────────────────────────────────
+  if(cekaji.length>0){
+    h+=`<div style="background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.3);border-radius:10px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:600;font-size:.85rem;color:#a855f7">📤 ${cekaji.length} leadů čeká na email draft</div>
+        <div style="font-size:.72rem;color:var(--text3);margin-top:2px">Řekni mi "zpracuj emaily" a vytvořím Gmail drafty podle šablon</div>
+      </div>
+      <button onclick="alert('Přejdi do chatu a napiš: zpracuj emaily')" style="background:#a855f7;border:none;color:#fff;border-radius:7px;padding:8px 14px;cursor:pointer;font-size:.78rem;font-weight:600;white-space:nowrap">📧 Zpracovat drafty</button>
+    </div>`;
+  }
+
+  // ── Lead cards helper ────────────────────────────────────────
+  const emailCard=(l,stageColor)=>{
+    const tel=telNum(l.telefon);
+    return`<div class="vl-card" onclick="openLead(${l._id})" style="border-left:3px solid ${stageColor}">
+      <div style="display:flex;flex-direction:column;gap:1px;min-width:52px">
+        <div class="vl-date" style="color:var(--text3)">${formatDatum(l.datum)}</div>
+        ${l.followup?`<div style="font-size:.65rem;color:#0ea5e9">📅 ${l.followup}</div>`:''}
+      </div>
+      <div class="vl-info">
+        <div class="vl-name">${esc(l.jmeno||'—')}${l.firma?` · <span style="color:var(--text2);font-weight:400">${esc(l.firma)}</span>`:''}</div>
+        <div class="vl-sub" style="max-width:320px">${esc((l.myNotes||l.problem||'').slice(0,90))}</div>
+      </div>
+      <div class="vl-acts">
+        ${l.email?`<a class="btn-ic" href="mailto:${esc(l.email)}" onclick="event.stopPropagation()" title="${esc(l.email)}">✉️</a>`:''}
+        ${tel?`<a class="btn-ic" href="tel:${tel}" onclick="event.stopPropagation()">📞</a>`:''}
+      </div>
+    </div>`;
+  };
+
+  // ── Sections ─────────────────────────────────────────────────
+  const sec=(title,arr,color)=>{
+    if(!arr.length)return`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;opacity:.5">
+      <div style="font-size:.8rem;font-weight:600;color:${color};margin-bottom:4px">${title} <span style="opacity:.6">(0)</span></div>
+      <div style="font-size:.72rem;color:var(--text3)">Žádné leady</div>
+    </div>`;
+    return`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="font-size:.82rem;font-weight:700;color:${color};margin-bottom:10px">${title} <span style="background:${color}22;padding:2px 7px;border-radius:10px">${arr.length}</span></div>
+      ${arr.map(l=>emailCard(l,color)).join('')}
+    </div>`;
+  };
+
+  h+=sec('📧 Čeká na odeslání',cekaji,'#a855f7');
+  h+=sec('📤 Email odeslán',odeslano,'#6366f1');
+  h+=sec('💬 Odpověděli',odpoved,'#0ea5e9');
+  h+=sec('✅ Uzavřeno emailem',uzavreno,'#16a34a');
+
+  vv.innerHTML=h;
+}
+
+// ── Panel ─────────────────────────────────────────────────────
+function openLead(id){
+  const l=leads.find(x=>x._id===id);if(!l)return;
+  currentLead=l;
+  document.getElementById('pName').textContent=l.jmeno||'Neznámý';
+  document.getElementById('pFirma').textContent=l.firma||(l.datum?'Datum: '+l.datum:'');
+  document.getElementById('pStage').value=l.stav||'';
+  document.getElementById('pPoz').value=l.poz||'';
+  document.getElementById('pFollowup').value=l.followup||'';
+  document.getElementById('pCastka').value=l.prodej_castka||'';
+  document.getElementById('pProdukt').value=l.prodej_produkt||'';
+  document.getElementById('pProdejNote').value=l.prodej_note||'';
+  document.getElementById('pNotes').value=l.myNotes||'';
+  const tel=telNum(l.telefon||'');
+  const phoneDisplay=fixPhone(l.telefon||'');
+  document.getElementById('pEmail').innerHTML=l.email?`<a class="link" href="mailto:${esc(l.email)}">${esc(l.email)}</a>`:'—';
+  document.getElementById('pTel').innerHTML=tel?`<a class="link" href="tel:${tel}">${esc(phoneDisplay)}</a>`:(phoneDisplay||'—');
+  document.getElementById('pProblem').textContent=l.problem||'—';
+  document.getElementById('pLokace').textContent=l.lokace||'—';
+  document.getElementById('pDatum').textContent=l.datum||'—';
+  // Campaign info
+  const cw=document.getElementById('pCampaignWrap');
+  if(l.campaign_name){
+    cw.style.display='';
+    document.getElementById('pCampaignName').textContent=l.campaign_name;
+    const platEl=document.getElementById('pPlatform');
+    platEl.innerHTML=l.platform?`<span class="plat-tag plat-${esc(l.platform)}">${esc(l.platform.toUpperCase())}</span>`:'';
+    document.getElementById('pAdsetName').textContent=l.adset_name||'';
+    document.getElementById('pWebsite').textContent=l.website?'🌐 '+l.website:'';
+  }else{cw.style.display='none';}
+  // Imported notes (poznamka from import)
+  const iw=document.getElementById('pImportedNotesWrap');
+  const importedNote=l.poznamka||l.notes||l.ai_info||'';
+  if(importedNote){
+    iw.style.display='';
+    document.getElementById('pImportedNotes').textContent=importedNote;
+  }else{iw.style.display='none';}
+  let acts='';
+  if(tel)acts+=`<a class="btn" href="tel:${tel}">📧 Email</a>`;
+  if(l.email)acts+=`<a class="btn" href="mailto:${esc(l.email)}">✉️ Email</a>`;
+  document.getElementById('pActions').innerHTML=acts;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('panel').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function savePanel(){
+  if(!currentLead)return;
+  currentLead.stav=document.getElementById('pStage').value;
+  currentLead.followup=document.getElementById('pFollowup').value;
+  currentLead.myNotes=document.getElementById('pNotes').value;
+  currentLead.prodej_castka=document.getElementById('pCastka').value;
+  currentLead.prodej_produkt=document.getElementById('pProdukt').value;
+  currentLead.prodej_note=document.getElementById('pProdejNote').value;
+  // poz zůstává nezávislá — neaktualizujeme ji při změně fáze
+  saveToApi(currentLead);
+  renderStatsBar();
+  if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
+}
+
+function savePozFromPanel(){
+  if(!currentLead)return;
+  currentLead.poz=document.getElementById('pPoz').value;
+  savePozLocal(currentLead.email,currentLead.poz);
+  renderStatsBar();
+  if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
+}
+
+function closePanel(){
+  if(currentLead){
+    currentLead.stav=document.getElementById('pStage').value;
+    currentLead.poz=document.getElementById('pPoz').value;
+    savePozLocal(currentLead.email,currentLead.poz);
+    currentLead.followup=document.getElementById('pFollowup').value;
+    currentLead.myNotes=document.getElementById('pNotes').value;
+    currentLead.prodej_castka=document.getElementById('pCastka').value;
+    currentLead.prodej_produkt=document.getElementById('pProdukt').value;
+    currentLead.prodej_note=document.getElementById('pProdejNote').value;
+    saveToApi(currentLead);
+    renderStatsBar();
+    if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
+  }
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('panel').classList.remove('open');
+  document.body.style.overflow='';
+  currentLead=null;
+}
+
+// ── Filter sheet (mobile) ─────────────────────────────────────
+function openFltSheet(){
+  document.getElementById('fltSheet').classList.add('open');
+  document.getElementById('fltOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeFltSheet(){
+  document.getElementById('fltSheet').classList.remove('open');
+  document.getElementById('fltOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// ── Import ────────────────────────────────────────────────────
+function openImport(){document.getElementById('impOv').classList.add('open');}
+function closeImport(){
+  document.getElementById('impOv').classList.remove('open');
+  document.getElementById('impPrev').style.display='none';
+  document.getElementById('impBtn').style.display='none';
+  impD=[];document.getElementById('progF').style.width='0%';
+}
+function doDrop(ev){ev.preventDefault();document.getElementById('dropZ').classList.remove('drag');const f=ev.dataTransfer.files[0];if(f)doFile(f);}
+
+function doFile(file){
+  if(!file)return;
+  const r=new FileReader();
+  r.onload=function(ev){
+    try{
+      const wb=XLSX.read(ev.target.result,{type:'array',cellDates:true});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true});
+      if(!rows.length)return alert('Soubor je prázdný');
+      const hdr=rows[0].map(h=>String(h).toLowerCase().trim());
+      const fi=terms=>{for(const t of terms){const i=hdr.findIndex(h=>h.includes(t));if(i>=0)return i;}return-1;};
+      // ── Detect FB Lead Ads export ──
+      const isFB=hdr.some(h=>h==='created_time'||h==='campaign_name'||h==='ad_name'||h==='form_name');
+      let cm;
+      if(isFB){
+        cm={
+          jmeno:fi(['full name','full_name','jmén','jmeno','first name','first_name'])>=0?fi(['full name','full_name','jmén','jmeno','first name','first_name']):-1,
+          firma:fi(['company','firma','web'])>=0?fi(['company','firma','web']):-1,
+          telefon:fi(['phone','tel','číslo'])>=0?fi(['phone','tel','číslo']):-1,
+          problem:fi(['message','zpráv','problém','problem','prekážka','spomaľ','najväčšia'])>=0?fi(['message','zpráv','problém','problem','prekážka','spomaľ','najväčšia']):-1,
+          pocet_videi:fi(['počet_videí','počet videí','očakávaný_počet','ocakavany_pocet','počet_video'])>=0?fi(['počet_videí','počet videí','očakávaný_počet','ocakavany_pocet','počet_video']):-1,
+          email:fi(['email','mail'])>=0?fi(['email','mail']):-1,
+          datum:fi(['created_time','datum','date'])>=0?fi(['created_time','datum','date']):-1,
+          poznamka:fi(['poznámka','poznamka','hovoru'])>=0?fi(['poznámka','poznamka','hovoru']):-1,
+          lokace:fi(['city','lok','schůzky'])>=0?fi(['city','lok','schůzky']):-1,
+          sluzba:fi(['služba','sluzba','schuzka'])>=0?fi(['služba','sluzba','schuzka']):-1,
+          mam_zajem:fi(['zájem_o','mám_zájem','zajem_o'])>=0?fi(['zájem_o','mám_zájem','zajem_o']):-1,
+          stav:fi(['stav','status','fáze','faze'])>=0?fi(['stav','status','fáze','faze']):-1,
+          notes:fi(['notes'])>=0?fi(['notes']):-1,
+          campaign_name:fi(['campaign_name'])>=0?fi(['campaign_name']):-1,
+          adset_name:fi(['adset_name','ad set name'])>=0?fi(['adset_name','ad set name']):-1,
+          ad_name:fi(['ad_name'])>=0?fi(['ad_name']):-1,
+          platform:fi(['platform'])>=0?fi(['platform']):-1,
+          website:fi(['website','web'])>=0?fi(['website','web']):-1,
+        };
+      }else{
+        cm={
+          jmeno:fi(['jmén','jmeno','full name','first name'])>=0?fi(['jmén','jmeno','full name','first name']):0,
+          firma:fi(['firma','company'])>=0?fi(['firma','company']):1,
+          telefon:fi(['tel','phone','číslo'])>=0?fi(['tel','phone','číslo']):2,
+          problem:fi(['problém','problem','prekážka','spomaľ','najväčšia'])>=0?fi(['problém','problem','prekážka','spomaľ','najväčšia']):3,
+          pocet_videi:fi(['počet_videí','počet videí','očakávaný_počet','ocakavany_pocet','počet_video'])>=0?fi(['počet_videí','počet videí','očakávaný_počet','ocakavany_pocet','počet_video']):-1,
+          email:fi(['email','mail'])>=0?fi(['email','mail']):4,
+          datum:fi(['datum','date'])>=0?fi(['datum','date']):5,
+          poznamka:fi(['poznámka','poznamka','hovoru'])>=0?fi(['poznámka','poznamka','hovoru']):6,
+          lokace:fi(['lok','schůzky'])>=0?fi(['lok','schůzky']):7,
+          sluzba:fi(['služba','sluzba','schuzka'])>=0?fi(['služba','sluzba','schuzka']):8,
+          mam_zajem:fi(['zájem_o','mám_zájem','zajem_o'])>=0?fi(['zájem_o','mám_zájem','zajem_o']):-1,
+          ai_info:fi(['ai info','ai_info'])>=0?fi(['ai info','ai_info']):9,
+          stav:fi(['stav','status','fáze','faze'])>=0?fi(['stav','status','fáze','faze']):10,
+          notes:fi(['notes'])>=0?fi(['notes']):11,
+          campaign_name:-1,adset_name:-1,platform:-1,website:-1,
+        };
+      }
+      impD=rows.slice(1).filter(r=>r.some(c=>c!=''&&c!==null&&c!==undefined)).map(row=>{
+        // ── Datum parsing (handles Date object from cellDates:true OR string) ──
+        const dRaw=cm.datum>=0?row[cm.datum]:'';
+        let datum='',mesic=null;
+        if(dRaw instanceof Date){
+          const y=dRaw.getFullYear(),mo=dRaw.getMonth()+1,dd=dRaw.getDate();
+          datum=y+'-'+String(mo).padStart(2,'0')+'-'+String(dd).padStart(2,'0');
+          mesic=y*100+mo;
+        }else{
+          const dStr=String(dRaw||'').trim();
+          const dm=dStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+          if(dm){datum=dm[1]+'-'+dm[2]+'-'+dm[3];mesic=parseInt(dm[1])*100+parseInt(dm[2]);}
+          else{
+            const dm2=dStr.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})/);
+            if(dm2){const y=dm2[3].length===2?2000+parseInt(dm2[3]):parseInt(dm2[3]);const mo=parseInt(dm2[2]);datum=y+'-'+String(mo).padStart(2,'0')+'-'+String(parseInt(dm2[1])).padStart(2,'0');mesic=y*100+mo;}
+            else{
+              const n=parseFloat(dStr);
+              if(!isNaN(n)&&n>40000){
+                const d2=new Date(Math.round((n-25569)*86400*1000));
+                const y=d2.getUTCFullYear(),mo=d2.getUTCMonth()+1,dd2=d2.getUTCDate();
+                datum=y+'-'+String(mo).padStart(2,'0')+'-'+String(dd2).padStart(2,'0');
+                mesic=y*100+mo;
+              }
+            }
+          }
+        }
+        const poz=cm.poznamka>=0?String(row[cm.poznamka]||'').trim():'';
+        const ai=cm.ai_info>=0?String(row[cm.ai_info]||'').trim():'';
+        const gv=poz.toLowerCase();
+        const sv=cm.stav>=0?String(row[cm.stav]||'').trim().toLowerCase():'';
+        const al=ai.toLowerCase();
+        function mapStavStr(s){
+          if(!s)return null;
+          if(s.includes('nezved')){if(s.includes('3'))return'nezvedan3';if(s.includes('2'))return'nezvedan2';return'nezvedan1';}
+          if(s.includes('nerelevant'))return'nerelevantni';
+          if(s.includes('konec'))return'nerelevantni';
+          if(s.includes('domluvena')||s.includes('schuzk')||s.includes('schůzk'))return'domluvena_schuzka';
+          if(s.includes('uzavř')||s.includes('uzavr'))return'uzavreno';
+          if(s.includes('odeslat email')||s.includes('email odeslán')||s.includes('odesláno')||s.includes('odeslano'))return'odeslat_email';
+          if(s.includes('volat'))return'nezvedan1';
+          return null;
+        }
+        const stav=mapStavStr(sv)||mapStavStr(gv)||mapStavStr(al)||'';
+        const rawSlz=cm.sluzba>=0?String(row[cm.sluzba]||'').trim().toLowerCase():'';
+        let rawZajem=cm.mam_zajem>=0?String(row[cm.mam_zajem]||'').trim().toLowerCase():'';
+        rawZajem=rawZajem.replace(/^mám_zájem_o:\s*/,'').replace(/^mam_zajem_o:\s*/,'').trim();
+        const rawPocetVidei=cm.pocet_videi>=0?String(row[cm.pocet_videi]||'').trim():'';
+        const slzSrc=rawSlz||rawZajem;
+        let sluzba='';
+        if(rawPocetVidei)sluzba='tvorba_ai_videi'; // počet videí → automaticky AI videa
+        else if(slzSrc.includes('reklam')||slzSrc.includes('marketing'))sluzba='reklama_marketing';
+        else if(slzSrc.includes('ai vid')||slzSrc.includes('ai videí')||slzSrc.includes('ai videa'))sluzba='tvorba_ai_videi';
+        else if(slzSrc.includes('video'))sluzba='video_produkce';
+        else if(slzSrc&&slzSrc!=='0')sluzba='jine';
+        let telefon=String(cm.telefon>=0?row[cm.telefon]||'':'').replace(/^p:/i,'').trim();
+        telefon=fixPhone(telefon);
+        // FB-specific fields
+        const campaign_name=cm.campaign_name>=0?String(row[cm.campaign_name]||'').trim():'';
+        const adset_name=cm.adset_name>=0?String(row[cm.adset_name]||'').trim():'';
+        const ad_name=cm.ad_name>=0?String(row[cm.ad_name]||'').trim():'';
+        let platform=cm.platform>=0?String(row[cm.platform]||'').trim().toLowerCase():'';
+        if(isFB&&!platform)platform='facebook';
+        const website=cm.website>=0?String(row[cm.website]||'').trim():'';
+        // Jméno pro FB: může být first_name + last_name nebo full_name
+        let jmeno=String(cm.jmeno>=0?row[cm.jmeno]||'':'').trim();
+        if(!jmeno&&isFB){
+          const fnI=fi(['first name','first_name']);const lnI=fi(['last name','last_name']);
+          const fn=fnI>=0?String(row[fnI]||'').trim():'';const ln=lnI>=0?String(row[lnI]||'').trim():'';
+          jmeno=[fn,ln].filter(Boolean).join(' ');
+        }
+        return{
+          jmeno,
+          firma:cm.firma>=0?String(row[cm.firma]||'').trim():'',
+          telefon,
+          problem:(cm.problem>=0?String(row[cm.problem]||'').trim():'')||(rawPocetVidei?'Počet videí: '+rawPocetVidei:''),
+          email:String(cm.email>=0?row[cm.email]||'':'').trim().toLowerCase(),
+          datum,mesic,poznamka:poz,
+          lokace:cm.lokace>=0?String(row[cm.lokace]||'').trim():'',
+          sluzba,ai_info:ai,stav,
+          notes:cm.notes>=0?String(row[cm.notes]||'').trim():'',
+          campaign_name,adset_name,ad_name,platform,website,
+        };
+      }).filter(r=>r.jmeno||r.email);
+      document.getElementById('impPrev').style.display='';
+      // Ukáž kolik je nových vs. duplikátů
+      const existingNow=new Set(leads.map(l=>l.email).filter(Boolean));
+      const newCount=impD.filter(r=>!r.email||!existingNow.has(r.email)).length;
+      const dupCount=impD.length-newCount;
+      const dupInfo=dupCount?` · <span style="color:var(--yellow)">⚠️ ${dupCount} duplikát${dupCount>4?'ů':dupCount>1?'y':''}  přeskočeno</span>`:'';
+      document.getElementById('impInfo').innerHTML=`<b style="color:var(--green)">✅ Nalezeno ${impD.length} řádků</b> v "${esc(file.name)}"${isFB?' <span style="color:#3b82f6;font-size:.75rem">· FB Lead Ads</span>':''}${dupInfo}${newCount<impD.length?` · <b style="color:var(--green)">${newCount} nových</b>`:''}`;
+      document.getElementById('impBtn').style.display='';
+    }catch(err){alert('Chyba: '+err.message);}
+  };
+  r.readAsArrayBuffer(file);
+}
+
+async function doImport(){
+  if(!impD.length)return;
+  const btn=document.getElementById('impBtn');btn.disabled=true;btn.textContent='⏳ Importuji…';
+  const prog=document.getElementById('progF'),st=document.getElementById('impSt');
+
+  // ── Deduplication: přeskoč leady, které už v CRM jsou (podle emailu) ──
+  const existingEmails=new Set(leads.map(l=>l.email).filter(Boolean));
+  const toImport=impD.filter(r=>!r.email||!existingEmails.has(r.email));
+  const skipped=impD.length-toImport.length;
+
+  if(!toImport.length){
+    if(st)st.innerHTML=`<span style="color:var(--yellow)">⚠️ Všechny leady (${skipped}) již v CRM existují — nic importováno.</span>`;
+    btn.disabled=false;btn.textContent='✅ Importovat';
+    return;
+  }
+
+  let done=0;
+  for(let i=0;i<toImport.length;i+=100){
+    try{
+      const batch=toImport.slice(i,i+100);
+      await sbPost('/rest/v1/leads',batch);
+      done+=Math.min(100,toImport.length-i);
+      if(prog)prog.style.width=Math.round(done/toImport.length*100)+'%';
+      if(st)st.textContent=(skipped?`Přeskočeno ${skipped} duplikátů · `:'')+'Importováno '+done+' / '+toImport.length;
+    }catch(err){
+      if(st)st.textContent='❌ '+err.message;
+      btn.disabled=false;btn.textContent='✅ Importovat';
+      return;
+    }
+  }
+  if(st)st.innerHTML=`✅ Hotovo! <b style="color:var(--green)">${toImport.length} nových</b>${skipped?` · <span style="color:var(--text3)">${skipped} přeskočeno (již existují)</span>`:''}`;
+  setTimeout(()=>{closeImport();init();},1500);
+}
+
+// ── Kampaně view (seskupeno po kreativách / ad_name) ──────────
+function renderKampane(){
+  const kv=document.getElementById('view-kampane');
+  if(!kv)return;
+  // Group leads by ad_name (kreativa); fallback na campaign_name
+  const kreativy={};
+  leads.forEach(l=>{
+    const key=l.ad_name||l.campaign_name||'(bez kreativy)';
+    if(!kreativy[key])kreativy[key]={
+      name:key,
+      campaign:l.campaign_name||'',
+      platform:l.platform||'',
+      leads:[],
+      spend:fbSpend[key]||0
+    };
+    kreativy[key].leads.push(l);
+  });
+  const arr=Object.values(kreativy).sort((a,b)=>b.leads.length-a.leads.length);
+  if(!arr.length){kv.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px">Žádné kreativy.</div>';return;}
+  let h='<div style="padding:8px 0">';
+  arr.forEach(c=>{
+    const prod=c.leads.filter(l=>l.prodej_castka&&parseFloat(l.prodej_castka)>0);
+    const obrat=prod.reduce((s,l)=>s+(parseFloat(l.prodej_castka)||0),0);
+    const konv=c.leads.length?Math.round(prod.length/c.leads.length*100):0;
+    const roas=c.spend>0?(obrat/c.spend).toFixed(2):null;
+    const cpl=c.spend>0&&c.leads.length>0?(c.spend/c.leads.length).toFixed(2):null;
+    h+=`<div class="camp-card">
+      <div class="camp-top">
+        <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px">
+            ${c.platform?`<span class="plat-tag plat-${c.platform}">${c.platform.toUpperCase()}</span>`:''}
+            <span style="font-weight:600;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(c.name)}">${esc(c.name)}</span>
+          </div>
+          ${c.campaign&&c.campaign!==c.name?`<div style="font-size:.67rem;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📣 ${esc(c.campaign)}</div>`:''}
+        </div>
+        <span style="font-size:.75rem;color:var(--text3);white-space:nowrap;flex-shrink:0;margin-left:8px">${c.leads.length} leadů</span>
+      </div>
+      <div class="camp-stats">
+        <div class="camp-stat"><div class="camp-stat-val">${c.leads.length}</div><div class="camp-stat-label">Leady</div></div>
+        <div class="camp-stat"><div class="camp-stat-val" style="color:var(--green)">${prod.length}</div><div class="camp-stat-label">Prodeje</div></div>
+        <div class="camp-stat"><div class="camp-stat-val" style="color:var(--accent2)">${konv}%</div><div class="camp-stat-label">Konverze</div></div>
+        <div class="camp-stat"><div class="camp-stat-val" style="color:var(--green)">${obrat>0?Number(obrat).toLocaleString('cs')+' €':'—'}</div><div class="camp-stat-label">Obrat</div></div>
+        <div class="camp-stat">
+          <div class="camp-stat-val" style="color:${c.spend?'var(--red)':'var(--text3)'}">
+            ${c.spend?Number(c.spend).toLocaleString('cs')+' €':'—'}
+          </div>
+          <div class="camp-stat-label">
+            FB Spend
+            <button onclick="editFbSpend('${esc(c.name)}')" style="background:none;border:none;cursor:pointer;font-size:.65rem;color:var(--accent);padding:1px 3px;margin-left:2px">✏️</button>
+          </div>
+        </div>
+        ${cpl?`<div class="camp-stat"><div class="camp-stat-val" style="color:var(--orange)">${cpl} €</div><div class="camp-stat-label">Cena/lead</div></div>`:''}
+        ${roas?`<div class="camp-stat"><div class="camp-stat-val" style="color:var(--green)">${roas}x</div><div class="camp-stat-label">ROAS</div></div>`:''}
+      </div>
+    </div>`;
+  });
+  h+='</div>';
+  kv.innerHTML=h;
+}
+
+function editFbSpend(campName){
+  const cur=fbSpend[campName]||0;
+  const val=prompt('FB výdaje pro:\n'+campName,cur);
+  if(val===null)return;
+  const n=parseFloat(val)||0;
+  saveFbSpend(campName,n);
+}
+
+async function saveFbSpend(campaign_name,spend){
+  fbSpend[campaign_name]=spend;
+  try{
+    await sbPost('/rest/v1/fb_spend',{campaign_name,spend});
+    renderKampane();
+  }catch(e){alert('Chyba uložení: '+e.message);}
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ── Google Sheets sync ───────────────────────────────────────
+const GSHEET_URL='https://docs.google.com/spreadsheets/d/VAS_SHEET_ID/export?format=csv&gid=0';
+
+function parseCSV(text){
+  const rows=[];
+  const lines=text.split('\n');
+  for(const line of lines){
+    if(!line.trim())continue;
+    const cols=[];let cur='';let inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}
+      else if(c===','&&!inQ){cols.push(cur);cur='';}
+      else cur+=c;
+    }
+    cols.push(cur);
+    rows.push(cols);
+  }
+  return rows;
+}
+
+function mapSluzbaFromZajem(z){
+  const s=(z||'').toLowerCase();
+  if(s.includes('ai')&&(s.includes('video')||s.includes('produkc')))return'tvorba_ai_videi';
+  if(s.includes('reklam')||s.includes('market'))return'reklama_marketing';
+  if(s.includes('video')||s.includes('produkc'))return'video_produkce';
+  if(s&&s!=='0')return'jine';
+  return'';
+}
+
+async function syncGSheets(){
+  const btn=document.getElementById('gsheetBtn');
+  if(!btn||btn.disabled)return;
+  btn.disabled=true;btn.textContent='⏳';
+  try{
+    // Fetch CSV
+    const resp=await sbFetch(GSHEET_URL,{},20000);
+    if(!resp.ok)throw new Error('Chyba při načítání tabulky: '+resp.status);
+    const text=await resp.text();
+    const rows=parseCSV(text);
+    if(rows.length<2){showSync('⚠️ Tabulka je prázdná','#eab308');btn.disabled=false;btn.textContent='📊';return;}
+
+    // Parse header
+    const hdr=rows[0].map(h=>h.trim().toLowerCase());
+    const ci=(names)=>{for(const n of names){const i=hdr.indexOf(n);if(i>=0)return i;}return-1;};
+    const iDatum=ci(['datum']);
+    const iJmeno=ci(['jméno','jmeno','name']);
+    const iEmail=ci(['email','e-mail']);
+    const iTel=ci(['telefon','tel','phone']);
+    const iWeb=ci(['web','website']);
+    const iZajem=ci(['zájem','zajem','zájem o','interest']);
+    const iProb=ci(['bolest / poznámka','bolest','poznámka','problem','note','notes']);
+    const iPlatform=ci(['utm source','utm_source']);
+    const iCamp=ci(['utm campaign','utm_campaign']);
+    const iAdName=ci(['utm content','utm_content']);
+
+    if(iEmail<0)throw new Error('Nenašel jsem sloupec Email v tabulce');
+
+    // Map rows to leads
+    const existingEmails=new Set(leads.map(l=>(l.email||'').toLowerCase()).filter(Boolean));
+    const newLeads=[];
+    const skipped=[];
+
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i];
+      const email=(r[iEmail]||'').trim().toLowerCase();
+      if(!email)continue;
+      if(existingEmails.has(email)){skipped.push(email);continue;}
+      existingEmails.add(email); // prevent in-batch duplicates
+
+      // Parse datum
+      const rawDatum=iDatum>=0?r[iDatum]:'';
+      const datum=rawDatum?rawDatum.slice(0,10):new Date().toISOString().slice(0,10);
+      const dObj=new Date(datum);
+      const mesic=dObj.getFullYear()*100+(dObj.getMonth()+1);
+
+      // Telefon cleanup
+      let telefon=(r[iTel]||'').trim();
+      if(telefon&&!telefon.startsWith('+'))telefon='+'+telefon;
+
+      const lead={
+        jmeno:(r[iJmeno]||'').trim(),
+        email,
+        telefon,
+        website:(r[iWeb]||'').trim(),
+        firma:(r[iWeb]||'').trim(),
+        sluzba:mapSluzbaFromZajem(r[iZajem]),
+        problem:(r[iProb]||'').trim(),
+        platform:(r[iPlatform]||'').trim().toLowerCase()||'facebook',
+        campaign_name:(r[iCamp]||'').trim(),
+        ad_name:(r[iAdName]||'').trim(),
+        datum,
+        mesic,
+        stav:'',
+      };
+      newLeads.push(lead);
+    }
+
+    if(!newLeads.length){
+      showSync(`✅ Vše aktuální — 0 nových (${skipped.length} duplikátů přeskočeno)`,'#16a34a');
+      btn.disabled=false;btn.textContent='📊';
+      return;
+    }
+
+    // Import in batches of 100
+    let done=0;
+    for(let i=0;i<newLeads.length;i+=100){
+      await sbPost('/rest/v1/leads',newLeads.slice(i,i+100));
+      done+=Math.min(100,newLeads.length-i);
+    }
+
+    showSync(`✅ Importováno ${done} nových leadů${skipped.length?` · ${skipped.length} duplikátů přeskočeno`:''}`, '#16a34a');
+    await init();
+  }catch(e){
+    showSync('❌ '+e.message,'#ef4444');
+  }finally{
+    btn.disabled=false;btn.textContent='📊';
+  }
+}
+
+// ── Přidání leadu z emailu ────────────────────────────────────
+function openEmailLead(){
+  document.getElementById('emailLeadOv').classList.add('open');
+  document.getElementById('emailLeadText').value='';
+  document.getElementById('emailLeadPrev').style.display='none';
+  document.getElementById('emailLeadErr').style.display='none';
+  document.getElementById('emailLeadBtn').style.display='none';
+  setTimeout(()=>document.getElementById('emailLeadText').focus(),100);
+}
+function closeEmailLead(){
+  document.getElementById('emailLeadOv').classList.remove('open');
+}
+let parsedEmailLead=null;
+function parseEmailLead(){
+  const txt=document.getElementById('emailLeadText').value;
+  const get=(keys)=>{
+    for(const k of keys){
+      const m=txt.match(new RegExp(k+'\\s*[:\\-]\\s*(.+?)(?=\\n[A-ZÁÉÍÓÚŮŽŠČŘĎŤŇ][a-záéíóúůžščřďťň]|$)','is'));
+      if(m)return m[1].trim();
+    }
+    return '';
+  };
+  const jmeno=get(['Jméno','Jmeno','Name','Meno']);
+  const email=(txt.match(/([a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,})/i)||[])[1]||'';
+  const telefon=(txt.match(/(?:Tel\.?\s*(?:číslo|cislo|number)?|Phone|Telefon)\s*[:\-]?\s*([\d\s\+\-]{7,})/i)||[])[1]||'';
+  const zprava=get(['Zpráva','Zprava','Message','Správa','Sprava','Obsah','Text']);
+  const prev=document.getElementById('emailLeadPrev');
+  const err=document.getElementById('emailLeadErr');
+  if(!email&&!jmeno){
+    prev.style.display='none';
+    err.style.display='none';
+    document.getElementById('emailLeadBtn').style.display='none';
+    parsedEmailLead=null;
+    return;
+  }
+  parsedEmailLead={jmeno,email:email.toLowerCase(),telefon:telefon.replace(/\s/g,''),problem:zprava};
+  document.getElementById('emailLeadInfo').innerHTML=
+    `<div>👤 <b>${esc(jmeno||'—')}</b></div>`+
+    `<div>✉️ ${esc(email||'—')}</div>`+
+    `<div>📞 ${esc(telefon||'—')}</div>`+
+    (zprava?`<div style="margin-top:4px;color:var(--text2);font-size:.73rem">💬 ${esc(zprava.slice(0,120))}${zprava.length>120?'…':''}</div>`:'');
+  prev.style.display='';
+  err.style.display='none';
+  document.getElementById('emailLeadBtn').style.display=email||jmeno?'':'none';
+}
+async function doEmailLead(){
+  if(!parsedEmailLead)return;
+  const btn=document.getElementById('emailLeadBtn');
+  btn.disabled=true;btn.textContent='⏳ Ukládám…';
+  const err=document.getElementById('emailLeadErr');
+  try{
+    const today=new Date();
+    const datum=today.toISOString().slice(0,10);
+    const mesic=today.getFullYear()*100+(today.getMonth()+1);
+    const lead={...parsedEmailLead,datum,mesic,stav:'',sluzba:''};
+    // Zkontroluj duplicitu
+    const exists=leads.find(l=>l.email&&l.email===lead.email);
+    if(exists){
+      err.innerHTML='⚠️ Lead s tímto emailem již v CRM existuje (<b>'+esc(exists.jmeno||exists.email)+'</b>).';
+      err.style.display='';
+      btn.disabled=false;btn.textContent='➕ Přidat lead';
+      return;
+    }
+    await sbPost('/rest/v1/leads',[lead]);
+    closeEmailLead();
+    await init();
+    showSync('✅ Lead '+esc(lead.jmeno||lead.email)+' přidán','#16a34a');
+  }catch(e){
+    err.textContent='❌ '+e.message;
+    err.style.display='';
+    btn.disabled=false;btn.textContent='➕ Přidat lead';
+  }
+}
+
+window.addEventListener('resize',()=>{if(currentTab==='table')render();});
+
+checkAuth();
+if(sessionStorage.getItem(AUTH_KEY)==='1'){init();setTab('table');}
+</script>
+</body>
+</html>

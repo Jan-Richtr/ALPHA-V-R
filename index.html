@@ -220,7 +220,6 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
   <div class="tabs d-desktop">
     <button class="tab active" onclick="setTab('table')">📋 Tabulka</button>
     <button class="tab" onclick="setTab('stats')">📊 Statistiky</button>
-    <button class="tab" onclick="setTab('email')">📧 Email</button>
     <button class="tab" onclick="setTab('kampane')">📣 Kampaně</button>
   </div>
   <div class="search-wrap">
@@ -232,7 +231,7 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
   <button class="icon-btn" onclick="doLogout()" title="Odhlásit" style="font-size:.7rem;color:var(--text3);border-color:transparent;background:none">🚪</button>
   <button class="icon-btn d-desktop" onclick="openImport()" title="Import XLS" style="background:var(--accent);border-color:var(--accent);color:#fff">📥</button>
   <button class="icon-btn d-desktop" id="gsheetBtn" onclick="syncGSheets()" title="Sync Google Sheets" style="background:#16a34a;border-color:#16a34a;color:#fff">📊</button>
-  <button class="icon-btn" onclick="openEmailLead()" title="Přidat lead z emailu" style="background:var(--bg3);border-color:var(--border);color:var(--text2)">📧</button>
+  <button class="icon-btn" onclick="openHoursEmail()" title="Přidat odpracované hodiny z emailu" style="background:var(--bg3);border-color:var(--border);color:var(--text2)">⏱️</button>
   <div id="selBar" style="display:none;align-items:center;gap:7px;flex-shrink:0">
     <span id="selCount" style="font-size:.78rem;color:var(--text2)"></span>
     <button onclick="deleteSelected()" style="background:#dc2626;border:none;color:#fff;border-radius:6px;padding:5px 11px;cursor:pointer;font-size:.78rem;font-weight:600">🗑️</button>
@@ -256,17 +255,15 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
       <option value="odeslana_faktura">Odeslana faktura 🧾</option>
       <option value="uzavreno">Uzavřeno 💚</option>
     </select>
-    <select class="flt" id="sluzbaFilter" onchange="applyFilters()">
-      <option value="">Vše – služby</option>
-      <option value="tvorba_ai_videi">🎬 AI videa</option>
-      <option value="reklama_marketing">📢 Reklama</option>
-      <option value="video_produkce">📹 Video</option>
-      <option value="jine">🔧 Jiné</option>
+    <select class="flt" id="zivnostFilter" onchange="applyFilters()">
+      <option value="">Živnost – vše</option>
+      <option value="ano">✅ Ano</option>
+      <option value="ne">❌ Ne</option>
     </select>
-    <select class="flt" id="prodejFilter" onchange="applyFilters()">
-      <option value="">Prodej – vše</option>
-      <option value="yes">✅ Prodáno</option>
-      <option value="no">❌ Neprodáno</option>
+    <select class="flt" id="ridicakFilter" onchange="applyFilters()">
+      <option value="">Řidičák – vše</option>
+      <option value="ano">✅ Ano</option>
+      <option value="ne">❌ Ne</option>
     </select>
   </div>
   <button class="icon-btn d-mobile" onclick="openFltSheet()" title="Filtry">⚙️</button>
@@ -280,20 +277,19 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
       <tr>
         <th style="width:36px;text-align:center"><input type="checkbox" id="selAll" onclick="toggleSelAll(this.checked)" style="cursor:pointer;accent-color:var(--accent)"></th>
         <th onclick="sortBy('datum')" data-col="datum">Datum <span class="si2">▲</span></th>
-        <th onclick="sortBy('jmeno')" data-col="jmeno">Jméno <span class="si2">▲</span></th>
-        <th onclick="sortBy('firma')" data-col="firma">Firma <span class="si2">▲</span></th>
+        <th onclick="sortBy('jmeno')" data-col="jmeno">Jméno a příjmení <span class="si2">▲</span></th>
         <th>Telefon</th>
         <th>Email</th>
-        <th onclick="sortBy('problem')" data-col="problem">Problém <span class="si2">▲</span></th>
-        <th>Lokalita</th>
-        <th>Služba</th>
-        <th>Poznámka</th>
+        <th onclick="sortBy('zivnost')" data-col="zivnost">Živnost <span class="si2">▲</span></th>
+        <th onclick="sortBy('profese')" data-col="profese">Profese <span class="si2">▲</span></th>
+        <th onclick="sortBy('problem')" data-col="problem">Zkušenosti <span class="si2">▲</span></th>
+        <th onclick="sortBy('jazyky')" data-col="jazyky">Znalost jazyka <span class="si2">▲</span></th>
+        <th onclick="sortBy('ridicak')" data-col="ridicak">Řidičák <span class="si2">▲</span></th>
+        <th>Stav</th>
         <th onclick="sortBy('stav')" data-col="stav">Fáze <span class="si2">▲</span></th>
-        <th onclick="sortBy('prodej_castka')" data-col="prodej_castka">💰 € <span class="si2">▲</span></th>
-        <th>📦 Produkt</th>
+        <th onclick="sortBy('odpracovane_hodiny')" data-col="odpracovane_hodiny">⏱ Hodiny <span class="si2">▲</span></th>
         <th onclick="sortBy('followup')" data-col="followup">📅 Follow-up <span class="si2">▲</span></th>
         <th>📝 Poznámky</th>
-        <th>📣 Kampaň</th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
@@ -368,47 +364,46 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
     <div class="p-grid">
       <div class="info-box"><div class="lbl">Email</div><div class="val" id="pEmail"></div></div>
       <div class="info-box"><div class="lbl">Telefon</div><div class="val" id="pTel"></div></div>
-      <div class="info-box p-full"><div class="lbl">Problém / Zájem</div><div class="val" id="pProblem"></div></div>
-      <div class="info-box"><div class="lbl">Lokalita</div><div class="val" id="pLokace"></div></div>
-      <div class="info-box"><div class="lbl">Datum přijetí</div><div class="val" id="pDatum"></div></div>
+      <div class="info-box p-full"><div class="lbl">Datum přijetí</div><div class="val" id="pDatum"></div></div>
     </div>
-    <div id="pCampaignWrap" style="display:none">
-      <div class="info-box" style="background:rgba(59,130,246,.05);border-color:rgba(59,130,246,.25)">
-        <div class="lbl" style="color:#60a5fa">📣 Kampaň</div>
-        <div class="val" id="pCampaignName" style="font-weight:600;margin-bottom:4px"></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-          <span id="pPlatform"></span>
-          <span style="font-size:.72rem;color:var(--text3)" id="pAdsetName"></span>
-        </div>
-        <div style="margin-top:4px;font-size:.72rem;color:var(--text2)" id="pWebsite"></div>
+    <div class="p-grid">
+      <div>
+        <span class="p-label">Živnost</span>
+        <select class="p-select" id="pZivnost" onchange="saveLeadFields()">
+          <option value="">— nevybráno —</option>
+          <option value="ano">✅ Ano</option>
+          <option value="ne">❌ Ne</option>
+        </select>
       </div>
+      <div>
+        <span class="p-label">Řidičský průkaz</span>
+        <select class="p-select" id="pRidicak" onchange="saveLeadFields()">
+          <option value="">— nevybráno —</option>
+          <option value="ano">✅ Ano</option>
+          <option value="ne">❌ Ne</option>
+        </select>
+      </div>
+      <div>
+        <span class="p-label">Profese</span>
+        <input class="p-input" id="pProfese" placeholder="Např. elektrikář" onblur="saveLeadFields()">
+      </div>
+      <div>
+        <span class="p-label">Znalost jazyka</span>
+        <input class="p-input" id="pJazyky" placeholder="Např. NJ B1" onblur="saveLeadFields()">
+      </div>
+    </div>
+    <div>
+      <span class="p-label">Pracovní zkušenosti</span>
+      <textarea class="p-textarea" id="pZkusenosti" placeholder="Otevřená odpověď kandidáta…" onblur="saveLeadFields()"></textarea>
+    </div>
+    <div>
+      <span class="p-label">⏱ Odpracované hodiny</span>
+      <input class="p-input" type="number" step="0.5" id="pHodiny" placeholder="0" onblur="saveLeadFields()">
+      <div style="font-size:.68rem;color:var(--text3);margin-top:3px">Doplňuje se automaticky přes ⏱️ Přidat hodiny z emailu, lze i upravit ručně.</div>
     </div>
     <div id="pImportedNotesWrap" style="display:none">
       <span class="p-label">📋 Poznámky z importu</span>
       <div id="pImportedNotes" style="background:var(--bg3);border-radius:6px;padding:7px 9px;font-size:.75rem;color:var(--text2);margin-top:4px;white-space:pre-wrap"></div>
-    </div>
-    <div class="prodej-sec">
-      <div class="sec-t">💰 Prodej</div>
-      <div class="prodej-grid">
-        <div>
-          <span class="p-label">Částka (€)</span>
-          <input class="p-input" type="number" id="pCastka" placeholder="0" onblur="savePanel()">
-        </div>
-        <div>
-          <span class="p-label">Produkt</span>
-          <select class="p-select" id="pProdukt" onchange="savePanel()">
-            <option value="">— nevybráno —</option>
-            <option value="tvorba_ai_videi">🎬 AI videa</option>
-            <option value="reklama_marketing">📢 Reklama</option>
-            <option value="video_produkce">📹 Video</option>
-            <option value="jine">🔧 Jiné</option>
-          </select>
-        </div>
-        <div class="p-full">
-          <span class="p-label">Poznámka k prodeji</span>
-          <input class="p-input" id="pProdejNote" placeholder="Datum podpisu, podmínky…" onblur="savePanel()">
-        </div>
-      </div>
     </div>
     <div>
       <span class="p-label">📅 Follow-up datum</span>
@@ -449,20 +444,20 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
   </div>
 </div>
 
-<!-- EMAIL LEAD MODAL -->
-<div class="imp-ov" id="emailLeadOv">
+<!-- HOURS FROM EMAIL MODAL -->
+<div class="imp-ov" id="hoursEmailOv">
   <div class="imp-modal" style="max-width:460px">
-    <h3>📧 Přidat lead z emailu</h3>
-    <p style="font-size:.75rem;color:var(--text3);margin-bottom:10px">Zkopíruj celý text emailu z formuláře a vlož sem:</p>
-    <textarea id="emailLeadText" placeholder="Jméno: Jan Novák&#10;Email: jan@example.com&#10;Tel. číslo: 777123456&#10;Zpráva: Text zprávy..." style="width:100%;height:160px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.8rem;padding:10px;resize:vertical;font-family:inherit;outline:none" oninput="parseEmailLead()"></textarea>
-    <div id="emailLeadPrev" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:.78rem">
+    <h3>⏱️ Přidat odpracované hodiny z emailu</h3>
+    <p style="font-size:.75rem;color:var(--text3);margin-bottom:10px">Zkopíruj text emailu (email kandidáta + počet odpracovaných hodin) a vlož sem:</p>
+    <textarea id="hoursEmailText" placeholder="Email: jan@example.com&#10;Odpracováno: 38 hodin" style="width:100%;height:160px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.8rem;padding:10px;resize:vertical;font-family:inherit;outline:none" oninput="parseHoursEmail()"></textarea>
+    <div id="hoursEmailPrev" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:.78rem">
       <div style="font-weight:600;margin-bottom:6px;color:var(--accent2)">✅ Rozpoznáno:</div>
-      <div id="emailLeadInfo"></div>
+      <div id="hoursEmailInfo"></div>
     </div>
-    <div id="emailLeadErr" style="display:none;margin-top:6px;font-size:.75rem;color:var(--red)"></div>
+    <div id="hoursEmailErr" style="display:none;margin-top:6px;font-size:.75rem;color:var(--red)"></div>
     <div class="imp-foot" style="margin-top:12px">
-      <button class="imp-btn imp-btn-s" onclick="closeEmailLead()">Zrušit</button>
-      <button class="imp-btn imp-btn-p" id="emailLeadBtn" style="display:none" onclick="doEmailLead()">➕ Přidat lead</button>
+      <button class="imp-btn imp-btn-s" onclick="closeHoursEmail()">Zrušit</button>
+      <button class="imp-btn imp-btn-p" id="hoursEmailBtn" style="display:none" onclick="doHoursEmail()">⏱️ Přidat hodiny</button>
     </div>
   </div>
 </div>
@@ -487,17 +482,15 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
     <option value="odeslana_faktura">Odeslana faktura 🧾</option>
     <option value="uzavreno">Uzavřeno 💚</option>
   </select>
-  <select class="flt" id="sluzbaFilterM" onchange="applyFilters()">
-    <option value="">Vše – služby</option>
-    <option value="tvorba_ai_videi">🎬 AI videa</option>
-    <option value="reklama_marketing">📢 Reklama</option>
-    <option value="video_produkce">📹 Video</option>
-    <option value="jine">🔧 Jiné</option>
+  <select class="flt" id="zivnostFilterM" onchange="applyFilters()">
+    <option value="">Živnost – vše</option>
+    <option value="ano">✅ Ano</option>
+    <option value="ne">❌ Ne</option>
   </select>
-  <select class="flt" id="prodejFilterM" onchange="applyFilters()">
-    <option value="">Prodej – vše</option>
-    <option value="yes">✅ Prodáno</option>
-    <option value="no">❌ Neprodáno</option>
+  <select class="flt" id="ridicakFilterM" onchange="applyFilters()">
+    <option value="">Řidičák – vše</option>
+    <option value="ano">✅ Ano</option>
+    <option value="ne">❌ Ne</option>
   </select>
   <button onclick="closeFltSheet()" style="width:100%;background:var(--accent);border:none;color:#fff;border-radius:8px;padding:10px;cursor:pointer;font-weight:600;font-size:.85rem;margin-top:4px">Použít filtry</button>
 </div>
@@ -506,9 +499,9 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
 <nav class="bottom-nav">
   <button class="bn-btn active" id="bn-table" onclick="setTab('table')"><span class="bn-ic">📋</span>Tabulka</button>
   <button class="bn-btn" id="bn-stats" onclick="setTab('stats')"><span class="bn-ic">📊</span>Statistiky</button>
-  <button class="bn-btn" id="bn-email" onclick="setTab('email')"><span class="bn-ic">📧</span>Email</button>
   <button class="bn-btn" id="bn-kampane" onclick="setTab('kampane')"><span class="bn-ic">📣</span>Kampaně</button>
   <button class="bn-btn" id="bn-import" onclick="openImport()"><span class="bn-ic">📥</span>Import</button>
+  <button class="bn-btn" id="bn-hodiny" onclick="openHoursEmail()"><span class="bn-ic">⏱️</span>Hodiny</button>
 </nav>
 
 <script>
@@ -591,7 +584,7 @@ const MONTH_NAMES=['','Leden','Únor','Březen','Duben','Květen','Červen','Če
 
 let leads=[],currentLead=null,currentTab='table';
 let sortCol='datum',sortDir=1;
-let filterPoz='',filterFaze='',filterSluzba='',filterSearch='',filterProdej='';
+let filterPoz='',filterFaze='',filterZivnost='',filterSearch='',filterRidicak='';
 let statsMonth=null,impD=[];
 let selected=new Set();
 let fbSpend={};
@@ -734,12 +727,11 @@ function getFiltered(){
     const poz=l.poz||'';
     if(filterPoz&&poz!==filterPoz)return false;
     if(filterFaze&&l.stav!==filterFaze)return false;
-    if(filterSluzba&&l.sluzba!==filterSluzba)return false;
-    if(filterProdej==='yes'&&!l.prodej_castka)return false;
-    if(filterProdej==='no'&&l.prodej_castka)return false;
+    if(filterZivnost&&(l.zivnost||'')!==filterZivnost)return false;
+    if(filterRidicak&&(l.ridicak||'')!==filterRidicak)return false;
     if(filterSearch){
       const q=filterSearch.toLowerCase();
-      if(!((l.jmeno||'').toLowerCase().includes(q)||(l.firma||'').toLowerCase().includes(q)||(l.email||'').toLowerCase().includes(q)||fixPhone(l.telefon||'').includes(q)||(l.problem||'').toLowerCase().includes(q)))return false;
+      if(!((l.jmeno||'').toLowerCase().includes(q)||(l.profese||'').toLowerCase().includes(q)||(l.email||'').toLowerCase().includes(q)||fixPhone(l.telefon||'').includes(q)||(l.problem||'').toLowerCase().includes(q)||(l.jazyky||'').toLowerCase().includes(q)))return false;
     }
     return true;
   });
@@ -748,8 +740,8 @@ function applyFilters(){
   filterSearch=document.getElementById('searchInput').value.trim();
   const mob=isMobile();
   filterFaze=(mob?document.getElementById('fazeFilterM'):document.getElementById('fazeFilter')).value;
-  filterSluzba=(mob?document.getElementById('sluzbaFilterM'):document.getElementById('sluzbaFilter')).value;
-  filterProdej=(mob?document.getElementById('prodejFilterM'):document.getElementById('prodejFilter')).value;
+  filterZivnost=(mob?document.getElementById('zivnostFilterM'):document.getElementById('zivnostFilter')).value;
+  filterRidicak=(mob?document.getElementById('ridicakFilterM'):document.getElementById('ridicakFilter')).value;
   render();
 }
 function setFilterPoz(p){filterPoz=filterPoz===p?'':p;render();}
@@ -757,13 +749,12 @@ function setFilterPoz(p){filterPoz=filterPoz===p?'':p;render();}
 // ── Tabs & Sort ───────────────────────────────────────────────
 function setTab(t){
   currentTab=t;
-  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['table','stats','email','kampane'][i]===t));
-  ['table','stats','email','kampane'].forEach(id=>{const el=document.getElementById('bn-'+id);if(el)el.classList.toggle('active',id===t);});
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['table','stats','kampane'][i]===t));
+  ['table','stats','kampane'].forEach(id=>{const el=document.getElementById('bn-'+id);if(el)el.classList.toggle('active',id===t);});
   const mob=isMobile();
   document.getElementById('view-table').style.display=(t==='table'&&!mob)?'':'none';
   document.getElementById('view-cards').style.display=(t==='table'&&mob)?'block':'none';
   document.getElementById('view-stats').style.display=t==='stats'?'block':'none';
-  document.getElementById('view-email').style.display=t==='email'?'block':'none';
   document.getElementById('view-kampane').style.display=t==='kampane'?'block':'none';
   render();
 }
@@ -781,7 +772,6 @@ function render(){
   if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
   else if(currentTab==='stats')renderStatsView();
   else if(currentTab==='kampane')renderKampane();
-  else if(currentTab==='email')renderEmail();
 }
 
 // ── Stats bar ─────────────────────────────────────────────────
@@ -810,19 +800,17 @@ function renderTable(){
   const filtered=getFiltered();
   const sorted=[...filtered].sort((a,b)=>{
     let va=a[sortCol]||'',vb=b[sortCol]||'';
-    if(sortCol==='prodej_castka'){va=parseFloat(va)||0;vb=parseFloat(vb)||0;return(va-vb)*sortDir;}
+    if(sortCol==='odpracovane_hodiny'){va=parseFloat(va)||0;vb=parseFloat(vb)||0;return(va-vb)*sortDir;}
     return String(va).localeCompare(String(vb),'cs')*sortDir;
   });
   const tb=document.getElementById('tableBody');
-  if(!sorted.length){tb.innerHTML=`<tr><td colspan="16" style="text-align:center;color:var(--text3);padding:36px">Žádné výsledky</td></tr>`;return;}
+  if(!sorted.length){tb.innerHTML=`<tr><td colspan="15" style="text-align:center;color:var(--text3);padding:36px">Žádné výsledky</td></tr>`;return;}
   const today=new Date().toISOString().slice(0,10);
+  const anoNe=v=>v==='ano'?'<span style="color:var(--green)">✅ Ano</span>':v==='ne'?'<span style="color:var(--text3)">❌ Ne</span>':'';
   tb.innerHTML=sorted.map(l=>{
     const finfo=getFazeInfo(l.stav);
     const poz=l.poz||'';
     const tel=telNum(l.telefon);
-    const castka=l.prodej_castka?`<span class="prodej-val">${Number(l.prodej_castka).toLocaleString('cs')} €</span>`:'<span style="color:var(--text3)">—</span>';
-    const produkt=l.prodej_produkt?`<span style="font-size:.68rem">${SLUZBA[l.prodej_produkt]||l.prodej_produkt}</span>`:'<span style="color:var(--text3)">—</span>';
-    const slzBadge=l.sluzba&&SLUZBA[l.sluzba]?`<span style="font-size:.68rem;background:rgba(108,99,255,.15);color:var(--accent2);padding:2px 5px;border-radius:3px">${SLUZBA[l.sluzba]}</span>`:'';
     const pozOpts=['','otevreno','uzavreno','konec'].map(v=>`<option value="${v}"${poz===v?' selected':''}>${POZ_LABEL[v]||'—'}</option>`).join('');
     const pozCell=`<select class="cell-sel ${POZ_CLS[poz]||''}" onchange="changePoz('${esc(l.email)}',this.value)" onclick="event.stopPropagation()">${pozOpts}</select>`;
     const fazeOpts=FAZE.map(f=>`<option value="${f.id}"${l.stav===f.id?' selected':''}>${f.label}</option>`).join('');
@@ -830,23 +818,23 @@ function renderTable(){
     const fuColor=isKonec?'var(--text3)':l.followup&&l.followup<=today?'var(--red)':l.followup?'var(--accent2)':'var(--text3)';
     const fazeCell=`<div style="display:flex;flex-direction:column;gap:2px"><select class="cell-sel ${finfo.cls}" onchange="changeFaze('${esc(l.email)}',this.value)" onclick="event.stopPropagation()" style="color:${finfo.color}">${fazeOpts}</select><div onclick="event.stopPropagation()" style="display:flex;align-items:center;gap:2px;font-size:.64rem;color:${fuColor};opacity:${isKonec?'0.25':'1'}">📅<input type="date" value="${l.followup||''}" onchange="changeFollowup('${esc(l.email)}',this.value)" onclick="event.stopPropagation()" title="Datum volání" style="background:transparent;border:none;color:${fuColor};font-size:.64rem;cursor:pointer;outline:none;font-family:inherit;width:88px;padding:0"></div></div>`;
     const phoneDisplay=fixPhone(l.telefon||'');
+    const hodiny=l.odpracovane_hodiny?`<span style="font-weight:600;color:var(--accent2)">${Number(l.odpracovane_hodiny).toLocaleString('cs')} h</span>`:'<span style="color:var(--text3)">—</span>';
     return`<tr onclick="openLead(${l._id})" style="${selected.has(l.email)?'background:rgba(220,38,38,.08)':''}">
       <td style="text-align:center;width:36px" onclick="event.stopPropagation()"><input type="checkbox" ${selected.has(l.email)?'checked':''} onchange="toggleSel('${esc(l.email)}',this.checked)" style="cursor:pointer;accent-color:var(--accent)"></td>
       <td style="color:var(--text3);min-width:55px">${formatDatum(l.datum)}</td>
-      <td style="font-weight:600;max-width:130px">${esc(l.jmeno||'')}</td>
-      <td style="color:var(--text2);max-width:120px">${l.firma?`<a class="link" href="${l.website&&l.website.startsWith('http')?esc(l.website):'https://www.google.com/search?q='+encodeURIComponent(l.firma)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(l.firma)}</a>`:''}</td>
+      <td style="font-weight:600;max-width:150px">${esc(l.jmeno||'')}</td>
       <td style="min-width:110px">${tel?`<a class="link" href="tel:${tel}" onclick="event.stopPropagation()">${esc(phoneDisplay)}</a>`:esc(phoneDisplay)}</td>
       <td style="max-width:150px"><a class="link" href="mailto:${esc(l.email||'')}" onclick="event.stopPropagation()">${esc(l.email||'')}</a></td>
+      <td>${anoNe(l.zivnost)}</td>
+      <td style="color:var(--text2);max-width:130px">${esc(l.profese||'')}</td>
       <td style="color:var(--text2);max-width:160px">${esc(l.problem||'')}</td>
-      <td style="color:var(--text3)">${esc(l.lokace||'')}</td>
-      <td>${slzBadge}</td>
+      <td style="color:var(--text2);max-width:110px">${esc(l.jazyky||'')}</td>
+      <td>${anoNe(l.ridicak)}</td>
       <td style="min-width:110px">${pozCell}</td>
       <td style="min-width:160px">${fazeCell}</td>
-      <td>${castka}</td>
-      <td>${produkt}</td>
+      <td>${hodiny}</td>
       <td style="color:${isKonec?'var(--text3)':(l.stav==='uzavreno'||l.stav==='uzavreno_emailem')&&l.followup?'var(--green)':l.followup&&l.followup<=today?'var(--red)':'var(--text2)'};opacity:${isKonec?'0.35':'1'}">${l.followup||'—'}</td>
       <td style="color:var(--text2);max-width:220px;font-size:.72rem">${esc(l.myNotes||l.notes||'')}</td>
-      <td style="max-width:160px;white-space:nowrap">${l.platform?`<span class="plat-tag plat-${l.platform}">${l.platform.toUpperCase()}</span> `:''}${(l.ad_name||l.campaign_name)?`<span class="camp-tag" title="${esc(l.campaign_name||'')}">${esc(l.ad_name||l.campaign_name)}</span>`:'<span style="color:var(--text3)">—</span>'}</td>
     </tr>`;
   }).join('');
 }
@@ -1129,31 +1117,22 @@ function openLead(id){
   const l=leads.find(x=>x._id===id);if(!l)return;
   currentLead=l;
   document.getElementById('pName').textContent=l.jmeno||'Neznámý';
-  document.getElementById('pFirma').textContent=l.firma||(l.datum?'Datum: '+l.datum:'');
+  document.getElementById('pFirma').textContent=l.profese||(l.datum?'Datum: '+l.datum:'');
   document.getElementById('pStage').value=l.stav||'';
   document.getElementById('pPoz').value=l.poz||'';
   document.getElementById('pFollowup').value=l.followup||'';
-  document.getElementById('pCastka').value=l.prodej_castka||'';
-  document.getElementById('pProdukt').value=l.prodej_produkt||'';
-  document.getElementById('pProdejNote').value=l.prodej_note||'';
   document.getElementById('pNotes').value=l.myNotes||'';
+  document.getElementById('pZivnost').value=l.zivnost||'';
+  document.getElementById('pRidicak').value=l.ridicak||'';
+  document.getElementById('pProfese').value=l.profese||'';
+  document.getElementById('pJazyky').value=l.jazyky||'';
+  document.getElementById('pZkusenosti').value=l.problem||'';
+  document.getElementById('pHodiny').value=l.odpracovane_hodiny||'';
   const tel=telNum(l.telefon||'');
   const phoneDisplay=fixPhone(l.telefon||'');
   document.getElementById('pEmail').innerHTML=l.email?`<a class="link" href="mailto:${esc(l.email)}">${esc(l.email)}</a>`:'—';
   document.getElementById('pTel').innerHTML=tel?`<a class="link" href="tel:${tel}">${esc(phoneDisplay)}</a>`:(phoneDisplay||'—');
-  document.getElementById('pProblem').textContent=l.problem||'—';
-  document.getElementById('pLokace').textContent=l.lokace||'—';
   document.getElementById('pDatum').textContent=l.datum||'—';
-  // Campaign info
-  const cw=document.getElementById('pCampaignWrap');
-  if(l.campaign_name){
-    cw.style.display='';
-    document.getElementById('pCampaignName').textContent=l.campaign_name;
-    const platEl=document.getElementById('pPlatform');
-    platEl.innerHTML=l.platform?`<span class="plat-tag plat-${esc(l.platform)}">${esc(l.platform.toUpperCase())}</span>`:'';
-    document.getElementById('pAdsetName').textContent=l.adset_name||'';
-    document.getElementById('pWebsite').textContent=l.website?'🌐 '+l.website:'';
-  }else{cw.style.display='none';}
   // Imported notes (poznamka from import)
   const iw=document.getElementById('pImportedNotesWrap');
   const importedNote=l.poznamka||l.notes||l.ai_info||'';
@@ -1162,7 +1141,7 @@ function openLead(id){
     document.getElementById('pImportedNotes').textContent=importedNote;
   }else{iw.style.display='none';}
   let acts='';
-  if(tel)acts+=`<a class="btn" href="tel:${tel}">📧 Email</a>`;
+  if(tel)acts+=`<a class="btn" href="tel:${tel}">📞 Volat</a>`;
   if(l.email)acts+=`<a class="btn" href="mailto:${esc(l.email)}">✉️ Email</a>`;
   document.getElementById('pActions').innerHTML=acts;
   document.getElementById('overlay').classList.add('open');
@@ -1175,9 +1154,6 @@ function savePanel(){
   currentLead.stav=document.getElementById('pStage').value;
   currentLead.followup=document.getElementById('pFollowup').value;
   currentLead.myNotes=document.getElementById('pNotes').value;
-  currentLead.prodej_castka=document.getElementById('pCastka').value;
-  currentLead.prodej_produkt=document.getElementById('pProdukt').value;
-  currentLead.prodej_note=document.getElementById('pProdejNote').value;
   // poz zůstává nezávislá — neaktualizujeme ji při změně fáze
   saveToApi(currentLead);
   renderStatsBar();
@@ -1192,6 +1168,36 @@ function savePozFromPanel(){
   if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
 }
 
+// ── Uložení polí profilu kandidáta (přímo do tabulky leads) ────
+async function saveLeadFields(){
+  if(!currentLead)return;
+  const zivnost=document.getElementById('pZivnost').value;
+  const ridicak=document.getElementById('pRidicak').value;
+  const profese=document.getElementById('pProfese').value.trim();
+  const jazyky=document.getElementById('pJazyky').value.trim();
+  const problem=document.getElementById('pZkusenosti').value.trim();
+  const hodinyRaw=document.getElementById('pHodiny').value;
+  const odpracovane_hodiny=hodinyRaw===''?null:parseFloat(hodinyRaw);
+  currentLead.zivnost=zivnost;
+  currentLead.ridicak=ridicak;
+  currentLead.profese=profese;
+  currentLead.jazyky=jazyky;
+  currentLead.problem=problem;
+  currentLead.odpracovane_hodiny=odpracovane_hodiny;
+  document.getElementById('pFirma').textContent=profese||(currentLead.datum?'Datum: '+currentLead.datum:'');
+  try{
+    const enc=encodeURIComponent(currentLead.email);
+    const r=await fetch(SB+'/rest/v1/leads?email=eq.'+enc,{
+      method:'PATCH',
+      headers:{...H,'Prefer':'return=minimal'},
+      body:JSON.stringify({zivnost,ridicak,profese,jazyky,problem,odpracovane_hodiny})
+    });
+    if(!r.ok)throw new Error(await r.text());
+    showSync('✅ Uloženo','#16a34a');
+    if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
+  }catch(e){showSync('⚠️ '+e.message,'#d97706');}
+}
+
 function closePanel(){
   if(currentLead){
     currentLead.stav=document.getElementById('pStage').value;
@@ -1199,9 +1205,6 @@ function closePanel(){
     savePozLocal(currentLead.email,currentLead.poz);
     currentLead.followup=document.getElementById('pFollowup').value;
     currentLead.myNotes=document.getElementById('pNotes').value;
-    currentLead.prodej_castka=document.getElementById('pCastka').value;
-    currentLead.prodej_produkt=document.getElementById('pProdukt').value;
-    currentLead.prodej_note=document.getElementById('pProdejNote').value;
     saveToApi(currentLead);
     renderStatsBar();
     if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
@@ -1253,35 +1256,38 @@ function doFile(file){
           jmeno:fi(['full name','full_name','jmén','jmeno','first name','first_name'])>=0?fi(['full name','full_name','jmén','jmeno','first name','first_name']):-1,
           firma:fi(['company','firma','web'])>=0?fi(['company','firma','web']):-1,
           telefon:fi(['phone','tel','číslo'])>=0?fi(['phone','tel','číslo']):-1,
-          problem:fi(['message','zpráv','problém','problem','prekážka','spomaľ','najväčšia'])>=0?fi(['message','zpráv','problém','problem','prekážka','spomaľ','najväčšia']):-1,
-          pocet_videi:fi(['počet_videí','počet videí','očakávaný_počet','ocakavany_pocet','počet_video'])>=0?fi(['počet_videí','počet videí','očakávaný_počet','ocakavany_pocet','počet_video']):-1,
+          problem:fi(['message','zpráv','problém','problem','zkušenost','zkusenost','prekážka','spomaľ','najväčšia'])>=0?fi(['message','zpráv','problém','problem','zkušenost','zkusenost','prekážka','spomaľ','najväčšia']):-1,
+          pocet_videi:-1,
           email:fi(['email','mail'])>=0?fi(['email','mail']):-1,
           datum:fi(['created_time','datum','date'])>=0?fi(['created_time','datum','date']):-1,
           poznamka:fi(['poznámka','poznamka','hovoru'])>=0?fi(['poznámka','poznamka','hovoru']):-1,
-          lokace:fi(['city','lok','schůzky'])>=0?fi(['city','lok','schůzky']):-1,
-          sluzba:fi(['služba','sluzba','schuzka'])>=0?fi(['služba','sluzba','schuzka']):-1,
-          mam_zajem:fi(['zájem_o','mám_zájem','zajem_o'])>=0?fi(['zájem_o','mám_zájem','zajem_o']):-1,
+          zivnost:fi(['živnost','zivnost'])>=0?fi(['živnost','zivnost']):-1,
+          profese:fi(['profese'])>=0?fi(['profese']):-1,
+          jazyky:fi(['jazyk'])>=0?fi(['jazyk']):-1,
+          ridicak:fi(['řidič','ridic'])>=0?fi(['řidič','ridic']):-1,
           stav:fi(['stav','status','fáze','faze'])>=0?fi(['stav','status','fáze','faze']):-1,
           notes:fi(['notes'])>=0?fi(['notes']):-1,
           campaign_name:fi(['campaign_name'])>=0?fi(['campaign_name']):-1,
           adset_name:fi(['adset_name','ad set name'])>=0?fi(['adset_name','ad set name']):-1,
           ad_name:fi(['ad_name'])>=0?fi(['ad_name']):-1,
           platform:fi(['platform'])>=0?fi(['platform']):-1,
-          website:fi(['website','web'])>=0?fi(['website','web']):-1,
+          website:-1,
         };
       }else{
         cm={
           jmeno:fi(['jmén','jmeno','full name','first name'])>=0?fi(['jmén','jmeno','full name','first name']):0,
-          firma:fi(['firma','company'])>=0?fi(['firma','company']):1,
+          firma:-1,
           telefon:fi(['tel','phone','číslo'])>=0?fi(['tel','phone','číslo']):2,
-          problem:fi(['problém','problem','prekážka','spomaľ','najväčšia'])>=0?fi(['problém','problem','prekážka','spomaľ','najväčšia']):3,
-          pocet_videi:fi(['počet_videí','počet videí','očakávaný_počet','ocakavany_pocet','počet_video'])>=0?fi(['počet_videí','počet videí','očakávaný_počet','ocakavany_pocet','počet_video']):-1,
+          problem:fi(['problém','problem','zkušenost','zkusenost','prekážka','spomaľ','najväčšia'])>=0?fi(['problém','problem','zkušenost','zkusenost','prekážka','spomaľ','najväčšia']):3,
+          pocet_videi:-1,
           email:fi(['email','mail'])>=0?fi(['email','mail']):4,
           datum:fi(['datum','date'])>=0?fi(['datum','date']):5,
           poznamka:fi(['poznámka','poznamka','hovoru'])>=0?fi(['poznámka','poznamka','hovoru']):6,
-          lokace:fi(['lok','schůzky'])>=0?fi(['lok','schůzky']):7,
-          sluzba:fi(['služba','sluzba','schuzka'])>=0?fi(['služba','sluzba','schuzka']):8,
-          mam_zajem:fi(['zájem_o','mám_zájem','zajem_o'])>=0?fi(['zájem_o','mám_zájem','zajem_o']):-1,
+          zivnost:fi(['živnost','zivnost'])>=0?fi(['živnost','zivnost']):-1,
+          profese:fi(['profese'])>=0?fi(['profese']):-1,
+          jazyky:fi(['jazyk'])>=0?fi(['jazyk']):-1,
+          ridicak:fi(['řidič','ridic'])>=0?fi(['řidič','ridic']):-1,
+          mam_zajem:-1,
           ai_info:fi(['ai info','ai_info'])>=0?fi(['ai info','ai_info']):9,
           stav:fi(['stav','status','fáze','faze'])>=0?fi(['stav','status','fáze','faze']):10,
           notes:fi(['notes'])>=0?fi(['notes']):11,
@@ -1331,17 +1337,17 @@ function doFile(file){
           return null;
         }
         const stav=mapStavStr(sv)||mapStavStr(gv)||mapStavStr(al)||'';
-        const rawSlz=cm.sluzba>=0?String(row[cm.sluzba]||'').trim().toLowerCase():'';
-        let rawZajem=cm.mam_zajem>=0?String(row[cm.mam_zajem]||'').trim().toLowerCase():'';
-        rawZajem=rawZajem.replace(/^mám_zájem_o:\s*/,'').replace(/^mam_zajem_o:\s*/,'').trim();
-        const rawPocetVidei=cm.pocet_videi>=0?String(row[cm.pocet_videi]||'').trim():'';
-        const slzSrc=rawSlz||rawZajem;
-        let sluzba='';
-        if(rawPocetVidei)sluzba='tvorba_ai_videi'; // počet videí → automaticky AI videa
-        else if(slzSrc.includes('reklam')||slzSrc.includes('marketing'))sluzba='reklama_marketing';
-        else if(slzSrc.includes('ai vid')||slzSrc.includes('ai videí')||slzSrc.includes('ai videa'))sluzba='tvorba_ai_videi';
-        else if(slzSrc.includes('video'))sluzba='video_produkce';
-        else if(slzSrc&&slzSrc!=='0')sluzba='jine';
+        const parseAnoNe=v=>{
+          const s=String(v||'').trim().toLowerCase();
+          if(!s)return'';
+          if(['ano','yes','1','true','y'].includes(s))return'ano';
+          if(['ne','no','0','false','n'].includes(s))return'ne';
+          return'';
+        };
+        const zivnost=cm.zivnost>=0?parseAnoNe(row[cm.zivnost]):'';
+        const profese=cm.profese>=0?String(row[cm.profese]||'').trim():'';
+        const jazyky=cm.jazyky>=0?String(row[cm.jazyky]||'').trim():'';
+        const ridicak=cm.ridicak>=0?parseAnoNe(row[cm.ridicak]):'';
         let telefon=String(cm.telefon>=0?row[cm.telefon]||'':'').replace(/^p:/i,'').trim();
         telefon=fixPhone(telefon);
         // FB-specific fields
@@ -1360,13 +1366,12 @@ function doFile(file){
         }
         return{
           jmeno,
-          firma:cm.firma>=0?String(row[cm.firma]||'').trim():'',
           telefon,
-          problem:(cm.problem>=0?String(row[cm.problem]||'').trim():'')||(rawPocetVidei?'Počet videí: '+rawPocetVidei:''),
+          problem:cm.problem>=0?String(row[cm.problem]||'').trim():'',
           email:String(cm.email>=0?row[cm.email]||'':'').trim().toLowerCase(),
           datum,mesic,poznamka:poz,
-          lokace:cm.lokace>=0?String(row[cm.lokace]||'').trim():'',
-          sluzba,ai_info:ai,stav,
+          zivnost,profese,jazyky,ridicak,
+          ai_info:ai,stav,
           notes:cm.notes>=0?String(row[cm.notes]||'').trim():'',
           campaign_name,adset_name,ad_name,platform,website,
         };
@@ -1616,77 +1621,86 @@ async function syncGSheets(){
   }
 }
 
-// ── Přidání leadu z emailu ────────────────────────────────────
-function openEmailLead(){
-  document.getElementById('emailLeadOv').classList.add('open');
-  document.getElementById('emailLeadText').value='';
-  document.getElementById('emailLeadPrev').style.display='none';
-  document.getElementById('emailLeadErr').style.display='none';
-  document.getElementById('emailLeadBtn').style.display='none';
-  setTimeout(()=>document.getElementById('emailLeadText').focus(),100);
+// ── Přidání odpracovaných hodin z emailu ───────────────────────
+function openHoursEmail(){
+  document.getElementById('hoursEmailOv').classList.add('open');
+  document.getElementById('hoursEmailText').value='';
+  document.getElementById('hoursEmailPrev').style.display='none';
+  document.getElementById('hoursEmailErr').style.display='none';
+  document.getElementById('hoursEmailBtn').style.display='none';
+  setTimeout(()=>document.getElementById('hoursEmailText').focus(),100);
 }
-function closeEmailLead(){
-  document.getElementById('emailLeadOv').classList.remove('open');
+function closeHoursEmail(){
+  document.getElementById('hoursEmailOv').classList.remove('open');
 }
-let parsedEmailLead=null;
-function parseEmailLead(){
-  const txt=document.getElementById('emailLeadText').value;
-  const get=(keys)=>{
-    for(const k of keys){
-      const m=txt.match(new RegExp(k+'\\s*[:\\-]\\s*(.+?)(?=\\n[A-ZÁÉÍÓÚŮŽŠČŘĎŤŇ][a-záéíóúůžščřďťň]|$)','is'));
-      if(m)return m[1].trim();
-    }
-    return '';
-  };
-  const jmeno=get(['Jméno','Jmeno','Name','Meno']);
-  const email=(txt.match(/([a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,})/i)||[])[1]||'';
-  const telefon=(txt.match(/(?:Tel\.?\s*(?:číslo|cislo|number)?|Phone|Telefon)\s*[:\-]?\s*([\d\s\+\-]{7,})/i)||[])[1]||'';
-  const zprava=get(['Zpráva','Zprava','Message','Správa','Sprava','Obsah','Text']);
-  const prev=document.getElementById('emailLeadPrev');
-  const err=document.getElementById('emailLeadErr');
-  if(!email&&!jmeno){
-    prev.style.display='none';
-    err.style.display='none';
-    document.getElementById('emailLeadBtn').style.display='none';
-    parsedEmailLead=null;
+let parsedHoursData=null;
+function parseHoursEmail(){
+  const txt=document.getElementById('hoursEmailText').value;
+  const prev=document.getElementById('hoursEmailPrev');
+  const err=document.getElementById('hoursEmailErr');
+  const btn=document.getElementById('hoursEmailBtn');
+  const emailMatch=(txt.match(/([a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,})/i)||[])[1]||'';
+  // Hodiny: "odpracováno: 38" NEBO "38 hodin" / "38h" / "38 hod"
+  let hodiny=null;
+  let m=txt.match(/odpracovan[oé]?\s*(?:hodin)?\s*[:\-]?\s*(\d+(?:[.,]\d+)?)/i);
+  if(m)hodiny=parseFloat(m[1].replace(',','.'));
+  if(hodiny===null){
+    m=txt.match(/(\d+(?:[.,]\d+)?)\s*(?:hodin\w*|hod\.?|h)\b/i);
+    if(m)hodiny=parseFloat(m[1].replace(',','.'));
+  }
+  parsedHoursData=null;
+  if(!emailMatch&&hodiny===null){
+    prev.style.display='none';err.style.display='none';btn.style.display='none';
     return;
   }
-  parsedEmailLead={jmeno,email:email.toLowerCase(),telefon:telefon.replace(/\s/g,''),problem:zprava};
-  document.getElementById('emailLeadInfo').innerHTML=
-    `<div>👤 <b>${esc(jmeno||'—')}</b></div>`+
-    `<div>✉️ ${esc(email||'—')}</div>`+
-    `<div>📞 ${esc(telefon||'—')}</div>`+
-    (zprava?`<div style="margin-top:4px;color:var(--text2);font-size:.73rem">💬 ${esc(zprava.slice(0,120))}${zprava.length>120?'…':''}</div>`:'');
-  prev.style.display='';
+  const email=emailMatch.toLowerCase();
+  const lead=email?leads.find(l=>l.email&&l.email.toLowerCase()===email):null;
+  if(!lead){
+    err.innerHTML=email?`⚠️ Nenašel jsem kandidáta s emailem <b>${esc(email)}</b> v CRM.`:'⚠️ V textu jsem nenašel emailovou adresu kandidáta.';
+    err.style.display='';
+    prev.style.display='none';
+    btn.style.display='none';
+    return;
+  }
+  if(hodiny===null){
+    err.innerHTML='⚠️ Nenašel jsem počet odpracovaných hodin v textu.';
+    err.style.display='';
+    prev.style.display='none';
+    btn.style.display='none';
+    return;
+  }
   err.style.display='none';
-  document.getElementById('emailLeadBtn').style.display=email||jmeno?'':'none';
+  const current=parseFloat(lead.odpracovane_hodiny)||0;
+  const total=Math.round((current+hodiny)*100)/100;
+  parsedHoursData={email:lead.email,pridat:hodiny,novyTotal:total};
+  document.getElementById('hoursEmailInfo').innerHTML=
+    `<div>👤 <b>${esc(lead.jmeno||lead.email)}</b></div>`+
+    `<div>✉️ ${esc(lead.email)}</div>`+
+    `<div>⏱️ Přidat: <b>${hodiny} h</b></div>`+
+    `<div style="margin-top:4px;color:var(--text2)">Nový celkový součet: <b>${total} h</b> (dosud ${current} h)</div>`;
+  prev.style.display='';
+  btn.style.display='';
 }
-async function doEmailLead(){
-  if(!parsedEmailLead)return;
-  const btn=document.getElementById('emailLeadBtn');
+async function doHoursEmail(){
+  if(!parsedHoursData)return;
+  const btn=document.getElementById('hoursEmailBtn');
   btn.disabled=true;btn.textContent='⏳ Ukládám…';
-  const err=document.getElementById('emailLeadErr');
+  const err=document.getElementById('hoursEmailErr');
   try{
-    const today=new Date();
-    const datum=today.toISOString().slice(0,10);
-    const mesic=today.getFullYear()*100+(today.getMonth()+1);
-    const lead={...parsedEmailLead,datum,mesic,stav:'',sluzba:''};
-    // Zkontroluj duplicitu
-    const exists=leads.find(l=>l.email&&l.email===lead.email);
-    if(exists){
-      err.innerHTML='⚠️ Lead s tímto emailem již v CRM existuje (<b>'+esc(exists.jmeno||exists.email)+'</b>).';
-      err.style.display='';
-      btn.disabled=false;btn.textContent='➕ Přidat lead';
-      return;
-    }
-    await sbPost('/rest/v1/leads',[lead]);
-    closeEmailLead();
+    const enc=encodeURIComponent(parsedHoursData.email);
+    const r=await fetch(SB+'/rest/v1/leads?email=eq.'+enc,{
+      method:'PATCH',
+      headers:{...H,'Prefer':'return=minimal'},
+      body:JSON.stringify({odpracovane_hodiny:parsedHoursData.novyTotal})
+    });
+    if(!r.ok)throw new Error(await r.text());
+    closeHoursEmail();
     await init();
-    showSync('✅ Lead '+esc(lead.jmeno||lead.email)+' přidán','#16a34a');
+    showSync('✅ Hodiny přidány','#16a34a');
   }catch(e){
     err.textContent='❌ '+e.message;
     err.style.display='';
-    btn.disabled=false;btn.textContent='➕ Přidat lead';
+    btn.disabled=false;btn.textContent='⏱️ Přidat hodiny';
   }
 }
 

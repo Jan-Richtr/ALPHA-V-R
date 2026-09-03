@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>V&R Ads CRM</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230d1340'/%3E%3Ctext x='32' y='26' font-family='Georgia,serif' font-size='22' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EV%26R%3C/text%3E%3Ctext x='32' y='50' font-family='Arial,sans-serif' font-size='16' font-weight='800' fill='%2322c55e' text-anchor='middle' letter-spacing='2'%3EADS%3C/text%3E%3C/svg%3E">
+<title>ALPHA CRM</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230a1128'/%3E%3Cpath d='M32 12 L48 44 L40 44 L32 26 L24 44 L16 44 Z' fill='%23ffffff'/%3E%3Crect x='27' y='30' width='4' height='14' fill='%232f6fed'/%3E%3Crect x='33' y='34' width='4' height='10' fill='%232f6fed'/%3E%3C/svg%3E">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{--bg:#0d0f1a;--bg2:#141726;--bg3:#1c2035;--border:#2e3454;--accent:#6c63ff;--accent2:#8b84ff;--green:#22c55e;--red:#ef4444;--orange:#f97316;--yellow:#eab308;--blue:#3b82f6;--purple:#a855f7;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--safe-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#0a1128;--bg2:#0f1830;--bg3:#172038;--border:#2a3555;--accent:#2f6fed;--accent2:#5b8bf5;--green:#22c55e;--red:#ef4444;--orange:#f97316;--yellow:#eab308;--blue:#3b82f6;--purple:#a855f7;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--safe-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:10px;height:52px;position:sticky;top:0;z-index:100}
@@ -216,7 +216,7 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
 <body>
 
 <div class="topbar">
-  <div class="logo">V&R Ads</div>
+  <div class="logo">ALPHA</div>
   <div class="tabs d-desktop">
     <button class="tab active" onclick="setTab('table')">📋 Tabulka</button>
     <button class="tab" onclick="setTab('stats')">📊 Statistiky</button>
@@ -307,7 +307,7 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
 <!-- LOGIN MODAL -->
 <div id="loginModal" class="open">
   <div class="login-box">
-    <div class="login-logo">V&R Ads</div>
+    <div class="login-logo">ALPHA</div>
     <div class="login-title" style="color:var(--text2);font-size:.8rem;font-weight:400;margin-bottom:20px;text-align:center">CRM · Přihlášení</div>
     <div style="margin-bottom:10px">
       <span class="p-label">UŽIVATELSKÉ JMÉNO</span>
@@ -513,8 +513,8 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
 
 <script>
 // ── Auth ──────────────────────────────────────────────────────
-const AUTH_KEY='vrads_auth';
-const USER='VAS_LOGIN',PASS='VASE_HESLO';
+const AUTH_KEY='alpha_auth';
+const USER='Vlado_ALPHA',PASS='Nemecko123';
 function checkAuth(){
   if(sessionStorage.getItem(AUTH_KEY)==='1'){document.getElementById('loginModal').classList.remove('open');}
   else{document.getElementById('loginModal').classList.add('open');}
@@ -533,8 +533,8 @@ function doLogin(){
 function doLogout(){sessionStorage.removeItem(AUTH_KEY);location.reload();}
 
 // ── Supabase ──────────────────────────────────────────────────
-const SB='https://VAS-PROJEKT.supabase.co';
-const SK='VAS_SUPABASE_ANON_KEY';
+const SB='https://kjxscmvricvkcnpxywxw.supabase.co';
+const SK='sb_publishable_nxgA7uAU21mWgCRt1ZCRBQ_kkgj13ei';
 const H={'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json'};
 
 async function sbFetch(url,opts={},ms=20000){

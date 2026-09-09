@@ -281,14 +281,14 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
         <th onclick="sortBy('praxe')" data-col="praxe">Praxe (roky) <span class="si2">▲</span></th>
         <th onclick="sortBy('nastup')" data-col="nastup">Nástup <span class="si2">▲</span></th>
         <th onclick="sortBy('jazyky')" data-col="jazyky">Znalost jazyka <span class="si2">▲</span></th>
-        <th onclick="sortBy('form_name')" data-col="form_name">Formulář <span class="si2">▲</span></th>
         <th onclick="sortBy('ad_name')" data-col="ad_name">Reklama <span class="si2">▲</span></th>
-        <th onclick="sortBy('adset_name')" data-col="adset_name">Sada reklam <span class="si2">▲</span></th>
         <th>Stav</th>
         <th onclick="sortBy('stav')" data-col="stav">Fáze <span class="si2">▲</span></th>
         <th onclick="sortBy('odpracovane_hodiny')" data-col="odpracovane_hodiny">⏱ Hodiny <span class="si2">▲</span></th>
         <th onclick="sortBy('followup')" data-col="followup">📅 Follow-up <span class="si2">▲</span></th>
         <th>📝 Poznámky</th>
+        <th onclick="sortBy('form_name')" data-col="form_name">Formulář <span class="si2">▲</span></th>
+        <th onclick="sortBy('adset_name')" data-col="adset_name">Sada reklam <span class="si2">▲</span></th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
@@ -658,6 +658,7 @@ async function deleteSelected(){
 // ── Phone fix ─────────────────────────────────────────────────
 function fixPhone(s){
   s=String(s||'').trim();
+  s=s.replace(/^p:\s*/i,''); // FB export prefixuje telefony "p:" — odstranit
   // Fix scientific notation e.g. "4.20722E+11"
   if(/^-?[\d.]+[eE][+\-]?\d+$/.test(s)){const n=parseFloat(s);if(!isNaN(n)&&n>0)s=Math.round(n).toString();}
   return s;
@@ -843,14 +844,14 @@ function renderTable(){
       <td style="color:var(--text2)">${esc(l.praxe||'')}</td>
       <td style="color:var(--text2);max-width:130px">${esc(l.nastup||'')}</td>
       <td style="color:var(--text2);max-width:130px">${esc(l.jazyky||'')}</td>
-      <td style="color:var(--text3);max-width:140px;font-size:.72rem">${esc(l.form_name||'')}</td>
       <td style="color:var(--text3);max-width:140px;font-size:.72rem">${esc(l.ad_name||'')}</td>
-      <td style="color:var(--text3);max-width:140px;font-size:.72rem">${esc(l.adset_name||'')}</td>
       <td style="min-width:110px">${pozCell}</td>
       <td style="min-width:160px">${fazeCell}</td>
       <td>${hodiny}</td>
       <td style="color:${isKonec?'var(--text3)':(l.stav==='uzavreno'||l.stav==='uzavreno_emailem')&&l.followup?'var(--green)':l.followup&&l.followup<=today?'var(--red)':'var(--text2)'};opacity:${isKonec?'0.35':'1'}">${l.followup||'—'}</td>
       <td style="color:var(--text2);max-width:220px;font-size:.72rem">${esc(l.myNotes||l.notes||'')}</td>
+      <td style="color:var(--text3);max-width:140px;font-size:.72rem">${esc(l.form_name||'')}</td>
+      <td style="color:var(--text3);max-width:140px;font-size:.72rem">${esc(l.adset_name||'')}</td>
     </tr>`;
   }).join('');
 }
@@ -1441,6 +1442,16 @@ async function doImport(){
 function renderKampane(){
   const kv=document.getElementById('view-kampane');
   if(!kv)return;
+  // Průměrný měsíční výdělek pro V&R Ads (0,20 €/h) na základě odpracovaných hodin daného člověka
+  const monthlyRevenueFor=email=>{
+    if(!email)return 0;
+    const entries=hodinyLog.filter(r=>r.email&&r.email.toLowerCase()===email.toLowerCase());
+    if(!entries.length)return 0;
+    const months=new Set(entries.map(r=>r.mesic).filter(Boolean));
+    const totalHodiny=entries.reduce((s,r)=>s+(parseFloat(r.hodiny)||0),0);
+    const avgMonthlyHodiny=totalHodiny/Math.max(months.size,1);
+    return avgMonthlyHodiny*RATE_VR;
+  };
   // Group leads by ad_name (kreativa); fallback na campaign_name
   const kreativy={};
   leads.forEach(l=>{
@@ -1458,9 +1469,9 @@ function renderKampane(){
   if(!arr.length){kv.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px">Žádné kreativy.</div>';return;}
   let h='<div style="padding:8px 0">';
   arr.forEach(c=>{
-    const prod=c.leads.filter(l=>l.prodej_castka&&parseFloat(l.prodej_castka)>0);
-    const obrat=prod.reduce((s,l)=>s+(parseFloat(l.prodej_castka)||0),0);
-    const konv=c.leads.length?Math.round(prod.length/c.leads.length*100):0;
+    const uzavrene=c.leads.filter(l=>(l.poz||'')==='uzavreno');
+    const obrat=uzavrene.reduce((s,l)=>s+monthlyRevenueFor(l.email),0);
+    const konv=c.leads.length?Math.round(uzavrene.length/c.leads.length*100):0;
     const roas=c.spend>0?(obrat/c.spend).toFixed(2):null;
     const cpl=c.spend>0&&c.leads.length>0?(c.spend/c.leads.length).toFixed(2):null;
     h+=`<div class="camp-card">
@@ -1476,9 +1487,9 @@ function renderKampane(){
       </div>
       <div class="camp-stats">
         <div class="camp-stat"><div class="camp-stat-val">${c.leads.length}</div><div class="camp-stat-label">Leady</div></div>
-        <div class="camp-stat"><div class="camp-stat-val" style="color:var(--green)">${prod.length}</div><div class="camp-stat-label">Prodeje</div></div>
+        <div class="camp-stat"><div class="camp-stat-val" style="color:var(--green)">${uzavrene.length}</div><div class="camp-stat-label">Uzavřené</div></div>
         <div class="camp-stat"><div class="camp-stat-val" style="color:var(--accent2)">${konv}%</div><div class="camp-stat-label">Konverze</div></div>
-        <div class="camp-stat"><div class="camp-stat-val" style="color:var(--green)">${obrat>0?Number(obrat).toLocaleString('cs')+' €':'—'}</div><div class="camp-stat-label">Obrat</div></div>
+        <div class="camp-stat"><div class="camp-stat-val" style="color:var(--green)">${obrat>0?Number(obrat).toLocaleString('cs',{minimumFractionDigits:2,maximumFractionDigits:2})+' €':'—'}</div><div class="camp-stat-label">Obrat / měsíc</div></div>
         <div class="camp-stat">
           <div class="camp-stat-val" style="color:${c.spend?'var(--red)':'var(--text3)'}">
             ${c.spend?Number(c.spend).toLocaleString('cs')+' €':'—'}
@@ -1585,7 +1596,7 @@ async function syncGSheets(){
       for(let i=1;i<rows.length;i++){
         const r=rows[i];
         const email=(iEmail>=0?r[iEmail]:'').trim().toLowerCase();
-        let telefon=(iTel>=0?r[iTel]:'').trim();
+        let telefon=(iTel>=0?r[iTel]:'').trim().replace(/^p:\s*/i,'');
         if(telefon&&!telefon.startsWith('+')&&/^\d/.test(telefon))telefon='+'+telefon;
         const telKey=telNum(telefon);
         if(!email&&!telKey)continue; // nedá se identifikovat, přeskoč

@@ -49,6 +49,7 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
 .b-em{background:rgba(168,85,247,.2);color:#a855f7}
 .b-eo{background:rgba(99,102,241,.2);color:#6366f1}
 .b-eod{background:rgba(14,165,233,.2);color:#0ea5e9}
+.b-pk{background:rgba(20,184,166,.2);color:#14b8a6}
 .b-uze{background:rgba(22,163,74,.2);color:#16a34a}
 .b-nr{background:rgba(100,116,139,.2);color:#94a3b8}
 .b-wa{background:rgba(37,211,102,.2);color:#25d366}
@@ -571,6 +572,7 @@ const FAZE=[
   {id:'email_odpoved',label:'Email - odpověď 💬',poz:'otevreno',cls:'b-eod',color:'#0ea5e9'},
   {id:'uzavreno_emailem',label:'Uzavřeno emailem 💚',poz:'uzavreno',cls:'b-uze',color:'#16a34a'},
   {id:'komunikace_wa',label:'Komunikace na WA 💬',poz:'otevreno',cls:'b-wa',color:'#25d366'},
+  {id:'probiha_komunikace',label:'Probíhá komunikace 💬',poz:'otevreno',cls:'b-pk',color:'#14b8a6'},
   {id:'nerelevantni',label:'Nerelevantní ☹️',poz:'konec',cls:'b-konec',color:'#ef4444'},
   {id:'konec',label:'Konec ❌',poz:'konec',cls:'b-konec',color:'#ef4444'},
   {id:'domluvena_schuzka',label:'Domluvena schuzka ✅',poz:'otevreno',cls:'b-ds',color:'#22c55e'},
@@ -605,9 +607,7 @@ let statsMonth=null,impD=[];
 let selected=new Set();
 let fbSpend={};
 
-// ── Poznámka (poz) — uložena lokálně, nezávislá na fázi ──────
-function savePozLocal(email,poz){try{localStorage.setItem('vp_'+btoa(unescape(encodeURIComponent(email))).slice(0,20),poz);}catch{}}
-function loadPozLocal(email){try{return localStorage.getItem('vp_'+btoa(unescape(encodeURIComponent(email))).slice(0,20))||'';}catch{return'';}}
+// (Stav/poz se ukládá přes saveToApi() do Supabase — viz níže, stejně jako Fáze a Poznámky)
 
 
 function toggleSel(email,checked){
@@ -688,7 +688,7 @@ async function init(){
         prodej_note:c.prodej_note||'',
         followup:c.followup||'',
         myNotes:c.my_notes||'',
-        poz:loadPozLocal(l.email)||'',
+        poz:c.poz||'',
       };
     });
     showSync('✅ '+leads.length+' leadů · '+new Date().toLocaleTimeString('cs',{hour:'2-digit',minute:'2-digit'}),'#16a34a');
@@ -704,6 +704,7 @@ async function saveToApi(lead){
     if(idx>=0)leads[idx]={...leads[idx],...lead};
     const data={
       stav:lead.stav,
+      poz:lead.poz||null,
       prodej_castka:lead.prodej_castka||null,
       prodej_produkt:lead.prodej_produkt||null,
       prodej_note:lead.prodej_note||null,
@@ -908,7 +909,7 @@ async function changeFaze(email,newStav){
 async function changePoz(email,newPoz){
   const lead=leads.find(l=>l.email===email);if(!lead)return;
   lead.poz=newPoz;
-  savePozLocal(email,newPoz);
+  await saveToApi(lead);
   renderStatsBar();renderTable();
 }
 async function changeFollowup(email,newDate){
@@ -1157,7 +1158,6 @@ function savePanel(){
   currentLead.stav=document.getElementById('pStage').value;
   currentLead.followup=document.getElementById('pFollowup').value;
   currentLead.myNotes=document.getElementById('pNotes').value;
-  // poz zůstává nezávislá — neaktualizujeme ji při změně fáze
   saveToApi(currentLead);
   renderStatsBar();
   if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
@@ -1166,7 +1166,7 @@ function savePanel(){
 function savePozFromPanel(){
   if(!currentLead)return;
   currentLead.poz=document.getElementById('pPoz').value;
-  savePozLocal(currentLead.email,currentLead.poz);
+  saveToApi(currentLead);
   renderStatsBar();
   if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
 }
@@ -1209,7 +1209,6 @@ function closePanel(){
   if(currentLead){
     currentLead.stav=document.getElementById('pStage').value;
     currentLead.poz=document.getElementById('pPoz').value;
-    savePozLocal(currentLead.email,currentLead.poz);
     currentLead.followup=document.getElementById('pFollowup').value;
     currentLead.myNotes=document.getElementById('pNotes').value;
     saveToApi(currentLead);

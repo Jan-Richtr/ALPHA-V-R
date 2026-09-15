@@ -212,6 +212,25 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
 #view-cards{padding:8px 10px 80px;display:none}
 /* View kampane container */
 #view-kampane{padding:8px 10px 80px;display:none}
+/* DENNI VIEW */
+#view-denni{padding:14px;display:none;overflow-y:auto;max-height:calc(100vh - 125px)}
+@media(max-width:700px){#view-denni{max-height:calc(100vh - 110px - var(--safe-bottom))}}
+.day-nav{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+.day-nav::-webkit-scrollbar{display:none}
+.day-btn{flex-shrink:0;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;text-align:center;transition:all .15s;min-width:60px}
+.day-btn.today{border-color:var(--accent);background:rgba(108,99,255,.12)}
+.day-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.day-btn .dbn-wd{font-size:.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:.4px}
+.day-btn.active .dbn-wd{color:rgba(255,255,255,.7)}
+.day-btn .dbn-d{font-size:1.1rem;font-weight:700;line-height:1.2}
+.act-item{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s}
+.act-item:hover{border-color:var(--accent)}
+.act-time{font-size:.68rem;color:var(--text3);min-width:40px;flex-shrink:0}
+.act-icon{font-size:1rem;flex-shrink:0}
+.act-body{flex:1;min-width:0}
+.act-name{font-weight:600;font-size:.83rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.act-sub{font-size:.7rem;color:var(--text2);margin-top:1px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.act-arrow{color:var(--text3);font-size:.7rem}
 </style>
 </head>
 <body>
@@ -222,6 +241,7 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
     <button class="tab active" onclick="setTab('table')">📋 Tabulka</button>
     <button class="tab" onclick="setTab('stats')">📊 Statistiky</button>
     <button class="tab" onclick="setTab('kampane')">📣 Kampaně</button>
+    <button class="tab" onclick="setTab('denni')">📅 Denní</button>
   </div>
   <div class="search-wrap">
     <span class="si">🔍</span>
@@ -299,6 +319,7 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
 <div id="view-stats"></div>
 <div id="view-email"></div>
 <div id="view-kampane"></div>
+<div id="view-denni"></div>
 
 <!-- LOGIN MODAL -->
 <div id="loginModal" class="open">
@@ -514,6 +535,7 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
   <button class="bn-btn active" id="bn-table" onclick="setTab('table')"><span class="bn-ic">📋</span>Tabulka</button>
   <button class="bn-btn" id="bn-stats" onclick="setTab('stats')"><span class="bn-ic">📊</span>Statistiky</button>
   <button class="bn-btn" id="bn-kampane" onclick="setTab('kampane')"><span class="bn-ic">📣</span>Kampaně</button>
+  <button class="bn-btn" id="bn-denni" onclick="setTab('denni')"><span class="bn-ic">📅</span>Denní</button>
   <button class="bn-btn" id="bn-import" onclick="openImport()"><span class="bn-ic">📥</span>Import</button>
   <button class="bn-btn" id="bn-hodiny" onclick="openHoursEmail()"><span class="bn-ic">⏱️</span>Hodiny</button>
 </nav>
@@ -697,10 +719,26 @@ async function init(){
   showLoading(false);
 }
 
-async function saveToApi(lead){
+async function logActivity(lead,action,opts={}){
+  try{
+    const entry={
+      lead_email:lead.email,
+      lead_name:lead.jmeno||'',
+      lead_profese:lead.profese||'',
+      action,
+      old_stav:opts.old_stav||'',
+      new_stav:opts.new_stav||'',
+      note:opts.note||null
+    };
+    await fetch(SB+'/rest/v1/activity_log',{method:'POST',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify(entry)});
+  }catch(e){/* log tiše — nesmí shodit hlavní uložení */}
+}
+
+async function saveToApi(lead,oldStav,passedOldNotes){
   showSync('💾 Ukládám…','#d97706');
   try{
     const idx=leads.findIndex(l=>l.email===lead.email);
+    const oldNotes=passedOldNotes!==undefined?passedOldNotes:(idx>=0?(leads[idx].myNotes||''):'');
     if(idx>=0)leads[idx]={...leads[idx],...lead};
     const data={
       stav:lead.stav,
@@ -731,6 +769,16 @@ async function saveToApi(lead){
       if(!ir.ok)throw new Error(await ir.text());
     }
     showSync('✅ Uloženo','#16a34a');
+    if(oldStav!==undefined&&oldStav!==lead.stav)
+      await logActivity(lead,'stav_zmena',{old_stav:oldStav,new_stav:lead.stav});
+    const newNotes=(lead.myNotes||'').trim();
+    const oldN=oldNotes.trim();
+    if(newNotes&&newNotes!==oldN){
+      let diff=newNotes;
+      if(oldN&&newNotes.startsWith(oldN))diff=newNotes.slice(oldN.length).trim();
+      else if(oldN&&newNotes.endsWith(oldN))diff=newNotes.slice(0,newNotes.length-oldN.length).trim();
+      await logActivity(lead,'poznamka',{note:diff||newNotes});
+    }
   }catch(e){showSync('⚠️ '+e.message,'#d97706');}
 }
 
@@ -767,13 +815,14 @@ function setFilterPoz(p){filterPoz=filterPoz===p?'':p;render();}
 // ── Tabs & Sort ───────────────────────────────────────────────
 function setTab(t){
   currentTab=t;
-  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['table','stats','kampane'][i]===t));
-  ['table','stats','kampane'].forEach(id=>{const el=document.getElementById('bn-'+id);if(el)el.classList.toggle('active',id===t);});
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['table','stats','kampane','denni'][i]===t));
+  ['table','stats','kampane','denni'].forEach(id=>{const el=document.getElementById('bn-'+id);if(el)el.classList.toggle('active',id===t);});
   const mob=isMobile();
   document.getElementById('view-table').style.display=(t==='table'&&!mob)?'':'none';
   document.getElementById('view-cards').style.display=(t==='table'&&mob)?'block':'none';
   document.getElementById('view-stats').style.display=t==='stats'?'block':'none';
   document.getElementById('view-kampane').style.display=t==='kampane'?'block':'none';
+  document.getElementById('view-denni').style.display=t==='denni'?'block':'none';
   render();
 }
 function sortBy(col){
@@ -790,6 +839,7 @@ function render(){
   if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
   else if(currentTab==='stats')renderStatsView();
   else if(currentTab==='kampane')renderKampane();
+  else if(currentTab==='denni')renderDenni();
 }
 
 // ── Stats bar ─────────────────────────────────────────────────
@@ -902,8 +952,9 @@ function renderCards(){
 // Inline change handlers
 async function changeFaze(email,newStav){
   const lead=leads.find(l=>l.email===email);if(!lead)return;
+  const oldStav=lead.stav;
   lead.stav=newStav;
-  await saveToApi(lead);
+  await saveToApi(lead,oldStav);
   renderStatsBar();renderTable();
 }
 async function changePoz(email,newPoz){
@@ -1155,10 +1206,12 @@ function openLead(id){
 
 function savePanel(){
   if(!currentLead)return;
+  const oldStav=currentLead.stav;
+  const oldNotes=currentLead.myNotes||''; // zachytit PŘED přepsáním
   currentLead.stav=document.getElementById('pStage').value;
   currentLead.followup=document.getElementById('pFollowup').value;
   currentLead.myNotes=document.getElementById('pNotes').value;
-  saveToApi(currentLead);
+  saveToApi(currentLead,oldStav,oldNotes);
   renderStatsBar();
   if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
 }
@@ -1207,11 +1260,13 @@ async function saveLeadFields(){
 
 function closePanel(){
   if(currentLead){
+    const oldStav=currentLead.stav;
+    const oldNotes=currentLead.myNotes||'';
     currentLead.stav=document.getElementById('pStage').value;
     currentLead.poz=document.getElementById('pPoz').value;
     currentLead.followup=document.getElementById('pFollowup').value;
     currentLead.myNotes=document.getElementById('pNotes').value;
-    saveToApi(currentLead);
+    saveToApi(currentLead,oldStav,oldNotes);
     renderStatsBar();
     if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
   }
@@ -1435,6 +1490,137 @@ async function doImport(){
   }
   if(st)st.innerHTML=`✅ Hotovo! <b style="color:var(--green)">${toImport.length} nových</b>${skipped?` · <span style="color:var(--text3)">${skipped} přeskočeno (již existují)</span>`:''}`;
   setTimeout(()=>{closeImport();init();},1500);
+}
+
+// ── Denní view ────────────────────────────────────────────────
+let denniBuf=[],denniDay=null,denniLoading=false,denniCounts={};
+const WD=['Ne','Po','Út','St','Čt','Pá','So'];
+function getDenniDays(){
+  const days=[];
+  for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toISOString().slice(0,10));}
+  return days;
+}
+async function loadDenniCounts(){
+  const days=getDenniDays();
+  const from=days[days.length-1];
+  try{
+    const rows=await sbGet('/rest/v1/activity_log?date=gte.'+from+'&select=date,action,new_stav&limit=2000');
+    denniCounts={};
+    (rows||[]).forEach(r=>{
+      if(!denniCounts[r.date])denniCounts[r.date]={total:0,closed:0};
+      denniCounts[r.date].total++;
+      if(['uzavreno','uzavreno_emailem','domluvena_schuzka'].includes(r.new_stav))denniCounts[r.date].closed++;
+    });
+  }catch(e){}
+  renderDenniNav();
+}
+function renderDenniNav(){
+  const nav=document.getElementById('denni-nav');if(!nav)return;
+  const days=getDenniDays();
+  const todayStr=days[0];
+  nav.innerHTML=days.map(d=>{
+    const dt=new Date(d+'T12:00:00');
+    const wd=WD[dt.getDay()];
+    const dd=dt.getDate();
+    const isToday=d===todayStr;
+    const isActive=d===denniDay;
+    const cnt=denniCounts[d]||{total:0,closed:0};
+    const dot=cnt.closed>0?'#22c55e':cnt.total>0?'#eab308':'transparent';
+    return`<div class="day-btn${isToday?' today':''}${isActive?' active':''}" data-day="${d}" onclick="switchDenniDay('${d}')">
+      <div class="dbn-wd">${wd}</div>
+      <div class="dbn-d">${dd}.</div>
+      <div style="height:6px;width:6px;border-radius:50%;background:${dot};margin:3px auto 0;opacity:.85"></div>
+    </div>`;
+  }).join('');
+}
+async function switchDenniDay(day){
+  if(denniLoading)return;
+  denniDay=day;
+  document.querySelectorAll('#denni-nav .day-btn').forEach(b=>b.classList.toggle('active',b.dataset.day===day));
+  denniLoading=true;
+  const el=document.getElementById('denni-content');
+  if(el)el.innerHTML=`<div style="text-align:center;color:var(--text3);padding:40px">⏳ Načítám…</div>`;
+  try{
+    const rows=await sbGet('/rest/v1/activity_log?date=eq.'+day+'&order=created_at.desc&limit=200');
+    denniBuf=rows||[];
+  }catch(e){denniBuf=[];}
+  denniLoading=false;
+  renderDenniContent(denniBuf);
+}
+function renderDenni(){
+  const dv=document.getElementById('view-denni');
+  const days=getDenniDays();
+  if(!denniDay)denniDay=days[0];
+  dv.innerHTML=`
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">PŘEHLED 7 DNÍ</div>
+        <div style="font-size:.65rem;color:var(--text3)">🟢 uzavřeno &nbsp; 🟡 aktivita</div>
+      </div>
+      <div class="day-nav" id="denni-nav"></div>
+    </div>
+    <div id="denni-content"><div style="text-align:center;color:var(--text3);padding:40px">⏳ Načítám…</div></div>
+  `;
+  renderDenniNav();
+  loadDenniCounts();
+  switchDenniDay(denniDay);
+}
+function renderDenniContent(rows){
+  const el=document.getElementById('denni-content');if(!el)return;
+  if(!rows.length){
+    el.innerHTML=`<div style="text-align:center;color:var(--text3);padding:48px;font-size:.85rem">
+      Pro tento den nejsou žádné záznamy.<br><span style="font-size:.75rem;margin-top:6px;display:block">Změny fází se začnou zaznamenávat od teď.</span>
+    </div>`;return;
+  }
+  const FAZE_ICON={volat:'📞',nezvedan1:'☎️',nezvedan2:'☎️',nezvedan3:'☎️',odeslat_email:'📧',email_odeslano:'📤',email_odpoved:'💬',uzavreno_emailem:'💚',komunikace_wa:'💬',probiha_komunikace:'💬',nerelevantni:'☹️',konec:'❌',domluvena_schuzka:'✅',odeslana_faktura:'🧾',uzavreno:'💚','':"—"};
+  const stavRows=rows.filter(r=>r.action==='stav_zmena');
+  const noteRows=rows.filter(r=>r.action==='poznamka');
+  const toCall=stavRows.filter(r=>['volat','nezvedan1','nezvedan2','nezvedan3'].includes(r.new_stav)).length;
+  const closed=stavRows.filter(r=>['uzavreno','uzavreno_emailem','domluvena_schuzka'].includes(r.new_stav)).length;
+  let h=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">
+    <div class="kpi"><div class="kpi-val">${stavRows.length}</div><div class="kpi-label">Posunů fází</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:#eab308">${toCall}</div><div class="kpi-label">Na volání</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:#22c55e">${closed}</div><div class="kpi-label">Uzavřeno</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:#a855f7">${noteRows.length}</div><div class="kpi-label">Poznámek</div></div>
+  </div>
+  <div style="font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">PŘEHLED ZMĚN</div>`;
+  rows.forEach(r=>{
+    const t=new Date(r.created_at).toLocaleTimeString('cs',{hour:'2-digit',minute:'2-digit'});
+    const lead=leads.find(l=>l.email===r.lead_email);
+    const onclick=lead?`openLead(${lead._id})`:'';
+    if(r.action==='poznamka'){
+      h+=`<div class="act-item" onclick="${onclick}">
+        <span class="act-time">${t}</span>
+        <span class="act-icon">📝</span>
+        <div class="act-body">
+          <div class="act-name">${esc(r.lead_name||r.lead_email)}</div>
+          ${r.lead_profese?`<div style="font-size:.68rem;color:var(--text3);margin-bottom:2px">${esc(r.lead_profese)}</div>`:''}
+          <div style="font-size:.75rem;color:var(--text2);background:var(--bg3);border-radius:5px;padding:5px 8px;margin-top:4px;white-space:pre-wrap;word-break:break-word">${esc(r.note||'')}</div>
+        </div>
+      </div>`;
+    } else {
+      const oldF=getFazeInfo(r.old_stav);const newF=getFazeInfo(r.new_stav);
+      const fullNote=(lead&&(lead.myNotes||'').trim())||'';
+      const lastNote=fullNote.includes(',')?fullNote.split(',').pop().trim():fullNote;
+      h+=`<div class="act-item" onclick="${onclick}" style="align-items:flex-start;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <span class="act-time">${t}</span>
+          <span class="act-icon">${FAZE_ICON[r.new_stav]||'🔄'}</span>
+          <div class="act-body">
+            <div class="act-name">${esc(r.lead_name||r.lead_email)}</div>
+            <div class="act-sub">
+              ${r.lead_profese?`<span style="color:var(--text3)">${esc(r.lead_profese)}</span>`:''}
+              <span class="badge ${oldF.cls}" style="color:${oldF.color};padding:1px 5px;font-size:.62rem">${oldF.label}</span>
+              <span class="act-arrow">→</span>
+              <span class="badge ${newF.cls}" style="color:${newF.color};padding:1px 5px;font-size:.62rem">${newF.label}</span>
+            </div>
+          </div>
+        </div>
+        ${lastNote?`<div style="width:100%;margin-top:6px;padding-left:90px;font-size:.75rem;color:var(--text2);white-space:pre-wrap;word-break:break-word">${esc(lastNote)}</div>`:''}
+      </div>`;
+    }
+  });
+  el.innerHTML=h;
 }
 
 // ── Kampaně view (seskupeno po kreativách / ad_name) ──────────

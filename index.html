@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="sk">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -238,21 +238,21 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
 <div class="topbar">
   <div class="logo">ALPHA</div>
   <div class="tabs d-desktop">
-    <button class="tab active" onclick="setTab('table')">📋 Tabulka</button>
-    <button class="tab" onclick="setTab('stats')">📊 Statistiky</button>
-    <button class="tab" onclick="setTab('kampane')">📣 Kampaně</button>
-    <button class="tab" onclick="setTab('denni')">📅 Denní</button>
+    <button class="tab active" onclick="setTab('table')">📋 Tabuľka</button>
+    <button class="tab" onclick="setTab('stats')">📊 Štatistiky</button>
+    <button class="tab" onclick="setTab('kampane')">📣 Kampane</button>
+    <button class="tab" onclick="setTab('denni')">📅 Denný</button>
   </div>
   <div class="search-wrap">
     <span class="si">🔍</span>
-    <input type="text" id="searchInput" placeholder="Hledat…" oninput="applyFilters()">
+    <input type="text" id="searchInput" placeholder="Hľadať…" oninput="applyFilters()">
   </div>
   <span id="syncLbl" style="font-size:.68rem;color:#64748b;flex-shrink:0;white-space:nowrap;display:none" class="d-desktop"></span>
-  <button class="icon-btn" onclick="init()" title="Obnovit">🔄</button>
-  <button class="icon-btn" onclick="doLogout()" title="Odhlásit" style="font-size:.7rem;color:var(--text3);border-color:transparent;background:none">🚪</button>
+  <button class="icon-btn" onclick="init()" title="Obnoviť">🔄</button>
+  <button class="icon-btn" onclick="doLogout()" title="Odhlásiť" style="font-size:.7rem;color:var(--text3);border-color:transparent;background:none">🚪</button>
   <button class="icon-btn d-desktop" onclick="openImport()" title="Import XLS" style="background:var(--accent);border-color:var(--accent);color:#fff">📥</button>
   <button class="icon-btn d-desktop" id="gsheetBtn" onclick="syncGSheets()" title="Sync Google Sheets" style="background:#16a34a;border-color:#16a34a;color:#fff">📊</button>
-  <button class="icon-btn" onclick="openHoursEmail()" title="Přidat odpracované hodiny z emailu" style="background:var(--bg3);border-color:var(--border);color:var(--text2)">⏱️</button>
+  <button class="icon-btn" onclick="openHoursEmail()" title="Pridať odpracované hodiny z e-mailu" style="background:var(--bg3);border-color:var(--border);color:var(--text2)">⏱️</button>
   <div id="selBar" style="display:none;align-items:center;gap:7px;flex-shrink:0">
     <span id="selCount" style="font-size:.78rem;color:var(--text2)"></span>
     <button onclick="deleteSelected()" style="background:#dc2626;border:none;color:#fff;border-radius:6px;padding:5px 11px;cursor:pointer;font-size:.78rem;font-weight:600">🗑️</button>
@@ -260,24 +260,25 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
   </div>
   <div class="filter-row d-desktop">
     <select class="flt" id="fazeFilter" onchange="applyFilters()">
-      <option value="">Všechny fáze</option>
-      <option value="volat">Volat 📞</option>
-      <option value="nezvedan1">Nezvedá 1 ☎️</option>
-      <option value="nezvedan2">Nezvedá 2 ☎️</option>
-      <option value="nezvedan3">Nezvedá 3 ☎️</option>
-      <option value="odeslat_email">Odeslat email 📧</option>
-      <option value="email_odeslano">Email odeslán 📤</option>
-      <option value="email_odpoved">Email - odpověď 💬</option>
-      <option value="uzavreno_emailem">Uzavřeno emailem 💚</option>
-      <option value="komunikace_wa">Komunikace na WA 💬</option>
-      <option value="nerelevantni">Nerelevantní ☹️</option>
-      <option value="konec">Konec ❌</option>
-      <option value="domluvena_schuzka">Domluvena schuzka ✅</option>
-      <option value="odeslana_faktura">Odeslana faktura 🧾</option>
-      <option value="uzavreno">Uzavřeno 💚</option>
+      <option value="">Všetky fázy</option>
+      <option value="volat">Volať 📞</option>
+      <option value="nezvedan1">Nedvíha 1 ☎️</option>
+      <option value="nezvedan2">Nedvíha 2 ☎️</option>
+      <option value="nezvedan3">Nedvíha 3 ☎️</option>
+      <option value="odeslat_email">Odoslať e-mail 📧</option>
+      <option value="email_odeslano">E-mail odoslaný 📤</option>
+      <option value="email_odpoved">E-mail - odpoveď 💬</option>
+      <option value="uzavreno_emailem">Uzavreté e-mailom 💚</option>
+      <option value="komunikace_wa">Komunikácia na WA 💬</option>
+      <option value="probiha_komunikace">Prebieha komunikácia 💬</option>
+      <option value="nerelevantni">Nerelevantné ☹️</option>
+      <option value="konec">Koniec ❌</option>
+      <option value="domluvena_schuzka">Dohodnuté stretnutie ✅</option>
+      <option value="odeslana_faktura">Odoslaná faktúra 🧾</option>
+      <option value="uzavreno">Uzavreté 💚</option>
     </select>
     <select class="flt" id="profeseFilter" onchange="applyFilters()">
-      <option value="">Zaměření – vše</option>
+      <option value="">Zameranie – všetko</option>
       <option value="Podlahári">Podlahári</option>
       <option value="Elektrikari">Elektrikari</option>
       <option value="Fotovoltika">Fotovoltika</option>
@@ -295,21 +296,21 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
     <thead>
       <tr>
         <th style="width:36px;text-align:center"><input type="checkbox" id="selAll" onclick="toggleSelAll(this.checked)" style="cursor:pointer;accent-color:var(--accent)"></th>
-        <th onclick="sortBy('datum')" data-col="datum">Datum <span class="si2">▲</span></th>
-        <th onclick="sortBy('jmeno')" data-col="jmeno">Jméno a příjmení <span class="si2">▲</span></th>
-        <th>Telefon</th>
+        <th onclick="sortBy('datum')" data-col="datum">Dátum <span class="si2">▲</span></th>
+        <th onclick="sortBy('jmeno')" data-col="jmeno">Meno a priezvisko <span class="si2">▲</span></th>
+        <th>Telefón</th>
         <th>Email</th>
-        <th onclick="sortBy('praxe')" data-col="praxe">Praxe (roky) <span class="si2">▲</span></th>
+        <th onclick="sortBy('praxe')" data-col="praxe">Prax (roky) <span class="si2">▲</span></th>
         <th onclick="sortBy('nastup')" data-col="nastup">Nástup <span class="si2">▲</span></th>
-        <th onclick="sortBy('jazyky')" data-col="jazyky">Znalost jazyka <span class="si2">▲</span></th>
+        <th onclick="sortBy('jazyky')" data-col="jazyky">Znalosť jazyka <span class="si2">▲</span></th>
         <th onclick="sortBy('ad_name')" data-col="ad_name">Reklama <span class="si2">▲</span></th>
         <th>Stav</th>
-        <th onclick="sortBy('stav')" data-col="stav">Fáze <span class="si2">▲</span></th>
+        <th onclick="sortBy('stav')" data-col="stav">Fáza <span class="si2">▲</span></th>
         <th onclick="sortBy('odpracovane_hodiny')" data-col="odpracovane_hodiny">⏱ Hodiny <span class="si2">▲</span></th>
         <th onclick="sortBy('followup')" data-col="followup">📅 Follow-up <span class="si2">▲</span></th>
         <th>📝 Poznámky</th>
-        <th onclick="sortBy('form_name')" data-col="form_name">Formulář <span class="si2">▲</span></th>
-        <th onclick="sortBy('adset_name')" data-col="adset_name">Sada reklam <span class="si2">▲</span></th>
+        <th onclick="sortBy('form_name')" data-col="form_name">Formulár <span class="si2">▲</span></th>
+        <th onclick="sortBy('adset_name')" data-col="adset_name">Sada reklám <span class="si2">▲</span></th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
@@ -325,17 +326,17 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
 <div id="loginModal" class="open">
   <div class="login-box">
     <div class="login-logo">ALPHA</div>
-    <div class="login-title" style="color:var(--text2);font-size:.8rem;font-weight:400;margin-bottom:20px;text-align:center">CRM · Přihlášení</div>
+    <div class="login-title" style="color:var(--text2);font-size:.8rem;font-weight:400;margin-bottom:20px;text-align:center">CRM · Prihlásenie</div>
     <div style="margin-bottom:10px">
-      <span class="p-label">UŽIVATELSKÉ JMÉNO</span>
+      <span class="p-label">POUŽÍVATEĽSKÉ MENO</span>
       <input class="p-input" id="loginUser" type="text" autocomplete="username" style="margin-top:4px">
     </div>
     <div style="margin-bottom:16px">
       <span class="p-label">HESLO</span>
       <input class="p-input" id="loginPass" type="password" autocomplete="current-password" style="margin-top:4px" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <div id="loginErr" style="color:var(--red);font-size:.75rem;margin-bottom:10px;display:none">Špatné přihlašovací údaje.</div>
-    <button class="btn btn-pri" style="width:100%;padding:9px" onclick="doLogin()">Přihlásit se</button>
+    <div id="loginErr" style="color:var(--red);font-size:.75rem;margin-bottom:10px;display:none">Nesprávne prihlasovacie údaje.</div>
+    <button class="btn btn-pri" style="width:100%;padding:9px" onclick="doLogin()">Prihlásiť sa</button>
   </div>
 </div>
 
@@ -353,72 +354,69 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
     <div class="p-actions" id="pActions"></div>
     <div class="p-grid">
       <div>
-        <span class="p-label">Stav (kategorie)</span>
-        <select class="p-select" id="pPoz" onchange="savePozFromPanel()">
-          <option value="">— nevybráno —</option>
-          <option value="otevreno">🟡 Otevřeno</option>
-          <option value="uzavreno">🟢 Uzavřeno</option>
-          <option value="konec">🔴 Konec</option>
-        </select>
+        <span class="p-label">Stav (kategória)</span>
+        <div class="info-box" style="margin-top:2px"><div class="val" id="pPoz">—</div></div>
+        <div style="font-size:.64rem;color:var(--text3);margin-top:2px">Odvodené automaticky z Fázy</div>
       </div>
       <div>
-        <span class="p-label">Fáze</span>
+        <span class="p-label">Fáza</span>
         <select class="p-select" id="pStage" onchange="savePanel()">
-          <option value="">— nevybráno —</option>
-          <option value="volat">Volat 📞</option>
-      <option value="nezvedan1">Nezvedá 1 ☎️</option>
-          <option value="nezvedan2">Nezvedá 2 ☎️</option>
-          <option value="nezvedan3">Nezvedá 3 ☎️</option>
-          <option value="odeslat_email">Odeslat email 📧</option>
-          <option value="email_odeslano">Email odeslán 📤</option>
-          <option value="email_odpoved">Email - odpověď 💬</option>
-          <option value="uzavreno_emailem">Uzavřeno emailem 💚</option>
-          <option value="komunikace_wa">Komunikace na WA 💬</option>
-          <option value="nerelevantni">Nerelevantní ☹️</option>
-          <option value="konec">Konec ❌</option>
-          <option value="domluvena_schuzka">Domluvena schuzka ✅</option>
-          <option value="odeslana_faktura">Odeslana faktura 🧾</option>
-          <option value="uzavreno">Uzavřeno 💚</option>
+          <option value="">— nevybrané —</option>
+          <option value="volat">Volať 📞</option>
+      <option value="nezvedan1">Nedvíha 1 ☎️</option>
+          <option value="nezvedan2">Nedvíha 2 ☎️</option>
+          <option value="nezvedan3">Nedvíha 3 ☎️</option>
+          <option value="odeslat_email">Odoslať e-mail 📧</option>
+          <option value="email_odeslano">E-mail odoslaný 📤</option>
+          <option value="email_odpoved">E-mail - odpoveď 💬</option>
+          <option value="uzavreno_emailem">Uzavreté e-mailom 💚</option>
+          <option value="komunikace_wa">Komunikácia na WA 💬</option>
+          <option value="probiha_komunikace">Prebieha komunikácia 💬</option>
+          <option value="nerelevantni">Nerelevantné ☹️</option>
+          <option value="konec">Koniec ❌</option>
+          <option value="domluvena_schuzka">Dohodnuté stretnutie ✅</option>
+          <option value="odeslana_faktura">Odoslaná faktúra 🧾</option>
+          <option value="uzavreno">Uzavreté 💚</option>
         </select>
       </div>
     </div>
     <div class="p-grid">
       <div class="info-box"><div class="lbl">Email</div><div class="val" id="pEmail"></div></div>
-      <div class="info-box"><div class="lbl">Telefon</div><div class="val" id="pTel"></div></div>
-      <div class="info-box p-full"><div class="lbl">Datum přijetí</div><div class="val" id="pDatum"></div></div>
+      <div class="info-box"><div class="lbl">Telefón</div><div class="val" id="pTel"></div></div>
+      <div class="info-box p-full"><div class="lbl">Dátum prijatia</div><div class="val" id="pDatum"></div></div>
     </div>
     <div class="p-grid">
       <div>
-        <span class="p-label">Praxe (roky)</span>
-        <input class="p-input" id="pPraxe" placeholder="Např. 5" onblur="saveLeadFields()">
+        <span class="p-label">Prax (roky)</span>
+        <input class="p-input" id="pPraxe" placeholder="Napr. 5" onblur="saveLeadFields()">
       </div>
       <div>
         <span class="p-label">Nástup</span>
-        <input class="p-input" id="pNastup" placeholder="Např. ihned" onblur="saveLeadFields()">
+        <input class="p-input" id="pNastup" placeholder="Napr. ihneď" onblur="saveLeadFields()">
       </div>
       <div>
-        <span class="p-label">Znalost jazyka</span>
-        <input class="p-input" id="pJazyky" placeholder="Např. NJ B1" onblur="saveLeadFields()">
+        <span class="p-label">Znalosť jazyka</span>
+        <input class="p-input" id="pJazyky" placeholder="Napr. NJ B1" onblur="saveLeadFields()">
       </div>
       <div>
-        <span class="p-label">Živnost</span>
+        <span class="p-label">Živnosť</span>
         <select class="p-select" id="pZivnost" onchange="saveLeadFields()">
-          <option value="">— nevybráno —</option>
-          <option value="ano">✅ Ano</option>
-          <option value="ne">❌ Ne</option>
+          <option value="">— nevybrané —</option>
+          <option value="ano">✅ Áno</option>
+          <option value="ne">❌ Nie</option>
         </select>
       </div>
       <div>
-        <span class="p-label">Řidičský průkaz</span>
+        <span class="p-label">Vodičský preukaz</span>
         <select class="p-select" id="pRidicak" onchange="saveLeadFields()">
-          <option value="">— nevybráno —</option>
-          <option value="ano">✅ Ano</option>
-          <option value="ne">❌ Ne</option>
+          <option value="">— nevybrané —</option>
+          <option value="ano">✅ Áno</option>
+          <option value="ne">❌ Nie</option>
         </select>
       </div>
       <div>
-        <span class="p-label">Profese</span>
-        <input class="p-input" id="pProfese" placeholder="Např. elektrikář" onblur="saveLeadFields()">
+        <span class="p-label">Profesia</span>
+        <input class="p-input" id="pProfese" placeholder="Napr. elektrikár" onblur="saveLeadFields()">
       </div>
     </div>
     <div id="pZdrojWrap" style="display:none">
@@ -430,20 +428,20 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
       </div>
     </div>
     <div>
-      <span class="p-label">Pracovní zkušenosti</span>
-      <textarea class="p-textarea" id="pZkusenosti" placeholder="Otevřená odpověď kandidáta…" onblur="saveLeadFields()"></textarea>
+      <span class="p-label">Pracovné skúsenosti</span>
+      <textarea class="p-textarea" id="pZkusenosti" placeholder="Otvorená odpoveď kandidáta…" onblur="saveLeadFields()"></textarea>
     </div>
     <div>
       <span class="p-label">⏱ Odpracované hodiny</span>
       <input class="p-input" type="number" step="0.5" id="pHodiny" placeholder="0" onblur="saveLeadFields()">
-      <div style="font-size:.68rem;color:var(--text3);margin-top:3px">Doplňuje se automaticky přes ⏱️ Přidat hodiny z emailu, lze i upravit ručně.</div>
+      <div style="font-size:.68rem;color:var(--text3);margin-top:3px">Dopĺňa sa automaticky cez ⏱️ Pridať hodiny z e-mailu, dá sa aj upraviť ručne.</div>
     </div>
     <div id="pImportedNotesWrap" style="display:none">
       <span class="p-label">📋 Poznámky z importu</span>
       <div id="pImportedNotes" style="background:var(--bg3);border-radius:6px;padding:7px 9px;font-size:.75rem;color:var(--text2);margin-top:4px;white-space:pre-wrap"></div>
     </div>
     <div>
-      <span class="p-label">📅 Follow-up datum</span>
+      <span class="p-label">📅 Follow-up dátum</span>
       <input class="p-input" type="date" id="pFollowup" onchange="savePanel()">
     </div>
     <div>
@@ -452,20 +450,20 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
     </div>
   </div>
   <div class="ps">
-    <button class="btn btn-pri" style="width:100%" onclick="closePanel()">Zavřít a uložit</button>
+    <button class="btn btn-pri" style="width:100%" onclick="closePanel()">Zavrieť a uložiť</button>
   </div>
 </div>
 
 <!-- IMPORT -->
 <div class="imp-ov" id="impOv">
   <div class="imp-modal">
-    <h3>📥 Import leadů z XLS / CSV</h3>
+    <h3>📥 Import leadov z XLS / CSV</h3>
     <div class="drop-z" id="dropZ" onclick="document.getElementById('fInput').click()"
       ondragover="event.preventDefault();this.classList.add('drag')"
       ondragleave="this.classList.remove('drag')"
       ondrop="doDrop(event)">
       <div class="ic">📂</div>
-      <div style="font-weight:600">Přetáhni soubor nebo klikni</div>
+      <div style="font-weight:600">Pretiahni súbor alebo klikni</div>
       <p style="color:var(--text3);font-size:.75rem;margin-top:3px">.xlsx .xls .csv</p>
       <input type="file" id="fInput" style="display:none" accept=".xlsx,.xls,.csv" onchange="doFile(this.files[0])">
     </div>
@@ -475,8 +473,8 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
       <div id="impSt" style="font-size:.72rem;color:var(--text3);margin-top:4px;text-align:center"></div>
     </div>
     <div class="imp-foot">
-      <button class="imp-btn imp-btn-s" onclick="closeImport()">Zrušit</button>
-      <button class="imp-btn imp-btn-p" id="impBtn" style="display:none" onclick="doImport()">✅ Importovat</button>
+      <button class="imp-btn imp-btn-s" onclick="closeImport()">Zrušiť</button>
+      <button class="imp-btn imp-btn-p" id="impBtn" style="display:none" onclick="doImport()">✅ Importovať</button>
     </div>
   </div>
 </div>
@@ -484,17 +482,17 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
 <!-- HOURS FROM EMAIL MODAL -->
 <div class="imp-ov" id="hoursEmailOv">
   <div class="imp-modal" style="max-width:460px">
-    <h3>⏱️ Přidat odpracované hodiny z emailu</h3>
-    <p style="font-size:.75rem;color:var(--text3);margin-bottom:10px">Zkopíruj text emailu (email kandidáta + počet odpracovaných hodin) a vlož sem:</p>
-    <textarea id="hoursEmailText" placeholder="Email: jan@example.com&#10;Odpracováno: 38 hodin" style="width:100%;height:160px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.8rem;padding:10px;resize:vertical;font-family:inherit;outline:none" oninput="parseHoursEmail()"></textarea>
+    <h3>⏱️ Pridať odpracované hodiny z e-mailu</h3>
+    <p style="font-size:.75rem;color:var(--text3);margin-bottom:10px">Skopíruj text e-mailu (e-mail kandidáta + počet odpracovaných hodín) a vlož sem:</p>
+    <textarea id="hoursEmailText" placeholder="Email: jan@example.com&#10;Odpracované: 38 hodín" style="width:100%;height:160px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.8rem;padding:10px;resize:vertical;font-family:inherit;outline:none" oninput="parseHoursEmail()"></textarea>
     <div id="hoursEmailPrev" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:.78rem">
-      <div style="font-weight:600;margin-bottom:6px;color:var(--accent2)">✅ Rozpoznáno:</div>
+      <div style="font-weight:600;margin-bottom:6px;color:var(--accent2)">✅ Rozpoznané:</div>
       <div id="hoursEmailInfo"></div>
     </div>
     <div id="hoursEmailErr" style="display:none;margin-top:6px;font-size:.75rem;color:var(--red)"></div>
     <div class="imp-foot" style="margin-top:12px">
-      <button class="imp-btn imp-btn-s" onclick="closeHoursEmail()">Zrušit</button>
-      <button class="imp-btn imp-btn-p" id="hoursEmailBtn" style="display:none" onclick="doHoursEmail()">⏱️ Přidat hodiny</button>
+      <button class="imp-btn imp-btn-s" onclick="closeHoursEmail()">Zrušiť</button>
+      <button class="imp-btn imp-btn-p" id="hoursEmailBtn" style="display:none" onclick="doHoursEmail()">⏱️ Pridať hodiny</button>
     </div>
   </div>
 </div>
@@ -502,40 +500,41 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
 <!-- MOBILE FILTER SHEET -->
 <div class="flt-overlay" id="fltOverlay" onclick="closeFltSheet()"></div>
 <div class="flt-sheet" id="fltSheet">
-  <h3>🔍 Filtry</h3>
+  <h3>🔍 Filtre</h3>
   <select class="flt" id="fazeFilterM" onchange="applyFilters()">
-    <option value="">Všechny fáze</option>
-    <option value="nezvedan1">Nezvedá 1 ☎️</option>
-    <option value="nezvedan2">Nezvedá 2 ☎️</option>
-    <option value="nezvedan3">Nezvedá 3 ☎️</option>
-    <option value="odeslat_email">Odeslat email 📧</option>
-    <option value="email_odeslano">Email odeslán 📤</option>
-    <option value="email_odpoved">Email - odpověď 💬</option>
-    <option value="uzavreno_emailem">Uzavřeno emailem 💚</option>
-    <option value="komunikace_wa">Komunikace na WA 💬</option>
-    <option value="nerelevantni">Nerelevantní ☹️</option>
-    <option value="konec">Konec ❌</option>
-    <option value="domluvena_schuzka">Domluvena schuzka ✅</option>
-    <option value="odeslana_faktura">Odeslana faktura 🧾</option>
-    <option value="uzavreno">Uzavřeno 💚</option>
+    <option value="">Všetky fázy</option>
+    <option value="nezvedan1">Nedvíha 1 ☎️</option>
+    <option value="nezvedan2">Nedvíha 2 ☎️</option>
+    <option value="nezvedan3">Nedvíha 3 ☎️</option>
+    <option value="odeslat_email">Odoslať e-mail 📧</option>
+    <option value="email_odeslano">E-mail odoslaný 📤</option>
+    <option value="email_odpoved">E-mail - odpoveď 💬</option>
+    <option value="uzavreno_emailem">Uzavreté e-mailom 💚</option>
+    <option value="komunikace_wa">Komunikácia na WA 💬</option>
+    <option value="probiha_komunikace">Prebieha komunikácia 💬</option>
+    <option value="nerelevantni">Nerelevantné ☹️</option>
+    <option value="konec">Koniec ❌</option>
+    <option value="domluvena_schuzka">Dohodnuté stretnutie ✅</option>
+    <option value="odeslana_faktura">Odoslaná faktúra 🧾</option>
+    <option value="uzavreno">Uzavreté 💚</option>
   </select>
   <select class="flt" id="profeseFilterM" onchange="applyFilters()">
-    <option value="">Zaměření – vše</option>
+    <option value="">Zameranie – všetko</option>
     <option value="Podlahári">Podlahári</option>
     <option value="Elektrikari">Elektrikari</option>
     <option value="Fotovoltika">Fotovoltika</option>
     <option value="Inštalatér">Inštalatér</option>
     <option value="Tepelná čerpadla">Tepelná čerpadla</option>
   </select>
-  <button onclick="closeFltSheet()" style="width:100%;background:var(--accent);border:none;color:#fff;border-radius:8px;padding:10px;cursor:pointer;font-weight:600;font-size:.85rem;margin-top:4px">Použít filtry</button>
+  <button onclick="closeFltSheet()" style="width:100%;background:var(--accent);border:none;color:#fff;border-radius:8px;padding:10px;cursor:pointer;font-weight:600;font-size:.85rem;margin-top:4px">Použiť filtre</button>
 </div>
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <button class="bn-btn active" id="bn-table" onclick="setTab('table')"><span class="bn-ic">📋</span>Tabulka</button>
-  <button class="bn-btn" id="bn-stats" onclick="setTab('stats')"><span class="bn-ic">📊</span>Statistiky</button>
-  <button class="bn-btn" id="bn-kampane" onclick="setTab('kampane')"><span class="bn-ic">📣</span>Kampaně</button>
-  <button class="bn-btn" id="bn-denni" onclick="setTab('denni')"><span class="bn-ic">📅</span>Denní</button>
+  <button class="bn-btn active" id="bn-table" onclick="setTab('table')"><span class="bn-ic">📋</span>Tabuľka</button>
+  <button class="bn-btn" id="bn-stats" onclick="setTab('stats')"><span class="bn-ic">📊</span>Štatistiky</button>
+  <button class="bn-btn" id="bn-kampane" onclick="setTab('kampane')"><span class="bn-ic">📣</span>Kampane</button>
+  <button class="bn-btn" id="bn-denni" onclick="setTab('denni')"><span class="bn-ic">📅</span>Denný</button>
   <button class="bn-btn" id="bn-import" onclick="openImport()"><span class="bn-ic">📥</span>Import</button>
   <button class="bn-btn" id="bn-hodiny" onclick="openHoursEmail()"><span class="bn-ic">⏱️</span>Hodiny</button>
 </nav>
@@ -570,7 +569,7 @@ async function sbFetch(url,opts={},ms=20000){
   const ctrl=new AbortController();
   const t=setTimeout(()=>ctrl.abort(),ms);
   try{return await fetch(url,{...opts,signal:ctrl.signal});}
-  catch(e){if(e.name==='AbortError')throw new Error('Timeout – Supabase neodpověděl ('+ms/1000+'s)');throw e;}
+  catch(e){if(e.name==='AbortError')throw new Error('Timeout – Supabase neodpovedal ('+ms/1000+'s)');throw e;}
   finally{clearTimeout(t);}
 }
 async function sbGet(p){const r=await sbFetch(SB+p,{headers:H});if(!r.ok)throw new Error(await r.text());const t=await r.text();return t?JSON.parse(t):[];}
@@ -578,28 +577,28 @@ async function sbPost(p,b){const r=await sbFetch(SB+p,{method:'POST',headers:{..
 
 // ── Helpers ───────────────────────────────────────────────────
 function isMobile(){return window.innerWidth<=700;}
-function getMesicLabel(m){if(!m)return'';const y=Math.floor(m/100),mo=m%100;const n=['','Led','Úno','Bře','Dub','Kvě','Čer','Čvc','Srp','Zář','Říj','Lis','Pro'];return(n[mo]||mo)+' '+y;}
+function getMesicLabel(m){if(!m)return'';const y=Math.floor(m/100),mo=m%100;const n=['','Jan','Feb','Mar','Apr','Máj','Jún','Júl','Aug','Sep','Okt','Nov','Dec'];return(n[mo]||mo)+' '+y;}
 function getMesicYear(m){return m?Math.floor(m/100):null;}
 function formatDatum(d){if(!d)return'—';const m=String(d).match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return parseInt(m[3])+'.'+parseInt(m[2])+'.';return String(d);}
 
 // ── Fáze system ───────────────────────────────────────────────
 const FAZE=[
   {id:'',label:'—',poz:'',cls:'',color:'#64748b'},
-  {id:'volat',label:'Volat 📞',poz:'otevreno',cls:'b-volat',color:'#eab308'},
-  {id:'nezvedan1',label:'Nezvedá 1 ☎️',poz:'otevreno',cls:'b-nz1',color:'#eab308'},
-  {id:'nezvedan2',label:'Nezvedá 2 ☎️',poz:'otevreno',cls:'b-nz2',color:'#f97316'},
-  {id:'nezvedan3',label:'Nezvedá 3 ☎️',poz:'otevreno',cls:'b-nz3',color:'#ef4444'},
-  {id:'odeslat_email',label:'Odeslat email 📧',poz:'otevreno',cls:'b-em',color:'#a855f7'},
-  {id:'email_odeslano',label:'Email odeslán 📤',poz:'otevreno',cls:'b-eo',color:'#6366f1'},
-  {id:'email_odpoved',label:'Email - odpověď 💬',poz:'otevreno',cls:'b-eod',color:'#0ea5e9'},
-  {id:'uzavreno_emailem',label:'Uzavřeno emailem 💚',poz:'uzavreno',cls:'b-uze',color:'#16a34a'},
-  {id:'komunikace_wa',label:'Komunikace na WA 💬',poz:'otevreno',cls:'b-wa',color:'#25d366'},
-  {id:'probiha_komunikace',label:'Probíhá komunikace 💬',poz:'otevreno',cls:'b-pk',color:'#14b8a6'},
-  {id:'nerelevantni',label:'Nerelevantní ☹️',poz:'konec',cls:'b-konec',color:'#ef4444'},
-  {id:'konec',label:'Konec ❌',poz:'konec',cls:'b-konec',color:'#ef4444'},
-  {id:'domluvena_schuzka',label:'Domluvena schuzka ✅',poz:'otevreno',cls:'b-ds',color:'#22c55e'},
-  {id:'odeslana_faktura',label:'Odeslana faktura 🧾',poz:'otevreno',cls:'b-ds',color:'#3b82f6'},
-  {id:'uzavreno',label:'Uzavřeno 💚',poz:'uzavreno',cls:'b-ds',color:'#16a34a'},
+  {id:'volat',label:'Volať 📞',poz:'otevreno',cls:'b-volat',color:'#eab308'},
+  {id:'nezvedan1',label:'Nedvíha 1 ☎️',poz:'otevreno',cls:'b-nz1',color:'#eab308'},
+  {id:'nezvedan2',label:'Nedvíha 2 ☎️',poz:'otevreno',cls:'b-nz2',color:'#f97316'},
+  {id:'nezvedan3',label:'Nedvíha 3 ☎️',poz:'otevreno',cls:'b-nz3',color:'#ef4444'},
+  {id:'odeslat_email',label:'Odoslať e-mail 📧',poz:'otevreno',cls:'b-em',color:'#a855f7'},
+  {id:'email_odeslano',label:'E-mail odoslaný 📤',poz:'otevreno',cls:'b-eo',color:'#6366f1'},
+  {id:'email_odpoved',label:'E-mail - odpoveď 💬',poz:'otevreno',cls:'b-eod',color:'#0ea5e9'},
+  {id:'uzavreno_emailem',label:'Uzavreté e-mailom 💚',poz:'uzavreno',cls:'b-uze',color:'#16a34a'},
+  {id:'komunikace_wa',label:'Komunikácia na WA 💬',poz:'otevreno',cls:'b-wa',color:'#25d366'},
+  {id:'probiha_komunikace',label:'Prebieha komunikácia 💬',poz:'otevreno',cls:'b-pk',color:'#14b8a6'},
+  {id:'nerelevantni',label:'Nerelevantné ☹️',poz:'konec',cls:'b-konec',color:'#ef4444'},
+  {id:'konec',label:'Koniec ❌',poz:'konec',cls:'b-konec',color:'#ef4444'},
+  {id:'domluvena_schuzka',label:'Dohodnuté stretnutie ✅',poz:'otevreno',cls:'b-ds',color:'#22c55e'},
+  {id:'odeslana_faktura',label:'Odoslaná faktúra 🧾',poz:'otevreno',cls:'b-ds',color:'#3b82f6'},
+  {id:'uzavreno',label:'Uzavreté 💚',poz:'uzavreno',cls:'b-ds',color:'#16a34a'},
 ];
 const FAZE_MAP={};FAZE.forEach(f=>FAZE_MAP[f.id]=f);
 
@@ -608,16 +607,18 @@ const OLD_STAV={'novy':'','email_ready':'odeslat_email','kontaktovan':'odeslat_e
 function migrateStav(s){if(FAZE_MAP.hasOwnProperty(s))return s;return OLD_STAV[s]||'';}
 
 function getPoz(stav){return(FAZE_MAP[stav]||FAZE[0]).poz;}
+// Efektivní Stav: pokud je ručně nastaven l.poz, použij ten; jinak odvoď z Fáze (aby počty seděly i u leadů bez ručně vybraného Stavu)
+function effectivePoz(l){return l.poz||getPoz(l.stav)||'';}
 function getFazeInfo(stav){return FAZE_MAP[stav]||FAZE[0];}
 
 // Poznámka (category) display
-const POZ_LABEL={'otevreno':'🟡 otevřeno','uzavreno':'🟢 uzavřeno','konec':'🔴 konec','':''};
+const POZ_LABEL={'otevreno':'🟡 otvorené','uzavreno':'🟢 uzavreté','konec':'🔴 koniec','':''};
 const POZ_CLS={'otevreno':'p-ot','uzavreno':'p-uz','konec':'p-ko','':''};
 // When user sets poznámka category directly → default fáze
 const POZ_DEFAULT={'otevreno':'nezvedan1','uzavreno':'nerelevantni','konec':'domluvena_schuzka','':''};
 
-const SLUZBA={'tvorba_ai_videi':'🎬 AI videa','reklama_marketing':'📢 Reklama','video_produkce':'📹 Video','jine':'🔧 Jiné','':''};
-const MONTH_NAMES=['','Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
+const SLUZBA={'tvorba_ai_videi':'🎬 AI videa','reklama_marketing':'📢 Reklama','video_produkce':'📹 Video','jine':'🔧 Iné','':''};
+const MONTH_NAMES=['','Január','Február','Marec','Apríl','Máj','Jún','Júl','August','September','Október','November','December'];
 
 let leads=[],currentLead=null,currentTab='table';
 let hodinyLog=[];
@@ -654,8 +655,8 @@ function updateSelBar(){
 }
 async function deleteSelected(){
   if(!selected.size)return;
-  if(!confirm('Opravdu smazat '+selected.size+' leadů? Tato akce je nevratná.'))return;
-  showSync('🗑️ Mažu…','#dc2626');
+  if(!confirm('Naozaj vymazať '+selected.size+' leadov? Táto akcia je nezvratná.'))return;
+  showSync('🗑️ Mažem…','#dc2626');
   try{
     const emails=[...selected];
     // Delete in batches of 50
@@ -672,7 +673,7 @@ async function deleteSelected(){
     leads=leads.filter(l=>!selected.has(l.email));
     selected.clear();
     updateSelBar();
-    showSync('✅ Smazáno','#16a34a');
+    showSync('✅ Vymazané','#16a34a');
     render();
   }catch(e){showSync('⚠️ '+e.message,'#dc2626');}
 }
@@ -689,7 +690,7 @@ function telNum(raw){return fixPhone(raw).replace(/[^+0-9]/g,'');}
 
 // ── Data ──────────────────────────────────────────────────────
 async function init(){
-  showLoading(true);showSync('⏳ Načítám…','#64748b');
+  showLoading(true);showSync('⏳ Načítavam…','#64748b');
   try{
     const[ls,cs,fs,hl]=await Promise.all([
       sbGet('/rest/v1/leads?order=mesic.asc,id.asc&limit=5000'),
@@ -710,10 +711,10 @@ async function init(){
         prodej_note:c.prodej_note||'',
         followup:c.followup||'',
         myNotes:c.my_notes||'',
-        poz:c.poz||'',
+        poz:getPoz(migrateStav(rawStav)),
       };
     });
-    showSync('✅ '+leads.length+' leadů · '+new Date().toLocaleTimeString('cs',{hour:'2-digit',minute:'2-digit'}),'#16a34a');
+    showSync('✅ '+leads.length+' leadov · '+new Date().toLocaleTimeString('sk',{hour:'2-digit',minute:'2-digit'}),'#16a34a');
     render();
   }catch(e){showSync('❌ '+e.message,'#dc2626');}
   showLoading(false);
@@ -735,7 +736,7 @@ async function logActivity(lead,action,opts={}){
 }
 
 async function saveToApi(lead,oldStav,passedOldNotes){
-  showSync('💾 Ukládám…','#d97706');
+  showSync('💾 Ukladám…','#d97706');
   try{
     const idx=leads.findIndex(l=>l.email===lead.email);
     const oldNotes=passedOldNotes!==undefined?passedOldNotes:(idx>=0?(leads[idx].myNotes||''):'');
@@ -768,7 +769,7 @@ async function saveToApi(lead,oldStav,passedOldNotes){
       });
       if(!ir.ok)throw new Error(await ir.text());
     }
-    showSync('✅ Uloženo','#16a34a');
+    showSync('✅ Uložené','#16a34a');
     if(oldStav!==undefined&&oldStav!==lead.stav)
       await logActivity(lead,'stav_zmena',{old_stav:oldStav,new_stav:lead.stav});
     const newNotes=(lead.myNotes||'').trim();
@@ -792,7 +793,7 @@ function showSync(msg,color){const el=document.getElementById('syncLbl');if(el){
 // ── Filters ───────────────────────────────────────────────────
 function getFiltered(){
   return leads.filter(l=>{
-    const poz=l.poz||'';
+    const poz=effectivePoz(l);
     if(filterPoz&&poz!==filterPoz)return false;
     if(filterFaze&&l.stav!==filterFaze)return false;
     if(filterProfese&&(l.profese||'')!==filterProfese)return false;
@@ -845,10 +846,10 @@ function render(){
 // ── Stats bar ─────────────────────────────────────────────────
 function renderStatsBar(){
   const bar=document.getElementById('statsBar');
-  const ot=leads.filter(l=>(l.poz||'')==='otevreno').length;
-  const uz=leads.filter(l=>(l.poz||'')==='uzavreno').length;
-  const ko=leads.filter(l=>(l.poz||'')==='konec').length;
-  const no=leads.filter(l=>!(l.poz||'')).length;
+  const ot=leads.filter(l=>effectivePoz(l)==='otevreno').length;
+  const uz=leads.filter(l=>effectivePoz(l)==='uzavreno').length;
+  const ko=leads.filter(l=>effectivePoz(l)==='konec').length;
+  const no=leads.filter(l=>!effectivePoz(l)).length;
   const today=new Date().toISOString().slice(0,10);
   const fuRed=leads.filter(l=>l.followup&&l.followup<=today&&l.stav!=='konec'&&l.stav!=='nerelevantni'&&l.stav!=='nezvedan3'&&l.stav!=='uzavreno'&&l.stav!=='uzavreno_emailem').length;
   const mk=(label,count,f,color)=>`<div class="stt${filterPoz===f?' on':''}" onclick="setFilterPoz('${f}')"><span class="stt-n" style="color:${color}">${count}</span><span class="stt-l">${label}</span></div>`;
@@ -869,23 +870,22 @@ function renderTable(){
   const sorted=[...filtered].sort((a,b)=>{
     let va=a[sortCol]||'',vb=b[sortCol]||'';
     if(sortCol==='odpracovane_hodiny'){va=parseFloat(va)||0;vb=parseFloat(vb)||0;return(va-vb)*sortDir;}
-    return String(va).localeCompare(String(vb),'cs')*sortDir;
+    return String(va).localeCompare(String(vb),'sk')*sortDir;
   });
   const tb=document.getElementById('tableBody');
-  if(!sorted.length){tb.innerHTML=`<tr><td colspan="16" style="text-align:center;color:var(--text3);padding:36px">Žádné výsledky</td></tr>`;return;}
+  if(!sorted.length){tb.innerHTML=`<tr><td colspan="16" style="text-align:center;color:var(--text3);padding:36px">Žiadne výsledky</td></tr>`;return;}
   const today=new Date().toISOString().slice(0,10);
   tb.innerHTML=sorted.map(l=>{
     const finfo=getFazeInfo(l.stav);
-    const poz=l.poz||'';
+    const poz=effectivePoz(l);
     const tel=telNum(l.telefon);
-    const pozOpts=['','otevreno','uzavreno','konec'].map(v=>`<option value="${v}"${poz===v?' selected':''}>${POZ_LABEL[v]||'—'}</option>`).join('');
-    const pozCell=`<select class="cell-sel ${POZ_CLS[poz]||''}" onchange="changePoz('${esc(l.email)}',this.value)" onclick="event.stopPropagation()">${pozOpts}</select>`;
+    const pozCell=`<span class="badge ${POZ_CLS[poz]||''}">${POZ_LABEL[poz]||'—'}</span>`;
     const fazeOpts=FAZE.map(f=>`<option value="${f.id}"${l.stav===f.id?' selected':''}>${f.label}</option>`).join('');
     const isKonec=l.stav==='konec'||l.stav==='nerelevantni'||l.stav==='nezvedan3';
     const fuColor=isKonec?'var(--text3)':l.followup&&l.followup<=today?'var(--red)':l.followup?'var(--accent2)':'var(--text3)';
     const fazeCell=`<div style="display:flex;flex-direction:column;gap:2px"><select class="cell-sel ${finfo.cls}" onchange="changeFaze('${esc(l.email)}',this.value)" onclick="event.stopPropagation()" style="color:${finfo.color}">${fazeOpts}</select><div onclick="event.stopPropagation()" style="display:flex;align-items:center;gap:2px;font-size:.64rem;color:${fuColor};opacity:${isKonec?'0.25':'1'}">📅<input type="date" value="${l.followup||''}" onchange="changeFollowup('${esc(l.email)}',this.value)" onclick="event.stopPropagation()" title="Datum volání" style="background:transparent;border:none;color:${fuColor};font-size:.64rem;cursor:pointer;outline:none;font-family:inherit;width:88px;padding:0"></div></div>`;
     const phoneDisplay=fixPhone(l.telefon||'');
-    const hodiny=l.odpracovane_hodiny?`<span style="font-weight:600;color:var(--accent2)">${Number(l.odpracovane_hodiny).toLocaleString('cs')} h</span>`:'<span style="color:var(--text3)">—</span>';
+    const hodiny=l.odpracovane_hodiny?`<span style="font-weight:600;color:var(--accent2)">${Number(l.odpracovane_hodiny).toLocaleString('sk')} h</span>`:'<span style="color:var(--text3)">—</span>';
     return`<tr onclick="openLead(${l._id})" style="${selected.has(l.email)?'background:rgba(220,38,38,.08)':''}">
       <td style="text-align:center;width:36px" onclick="event.stopPropagation()"><input type="checkbox" ${selected.has(l.email)?'checked':''} onchange="toggleSel('${esc(l.email)}',this.checked)" style="cursor:pointer;accent-color:var(--accent)"></td>
       <td style="color:var(--text3);min-width:55px">${formatDatum(l.datum)}</td>
@@ -910,15 +910,15 @@ function renderTable(){
 // ── Mobile cards ──────────────────────────────────────────────
 function renderCards(){
   const filtered=getFiltered();
-  const sorted=[...filtered].sort((a,b)=>String(a.datum||'').localeCompare(String(b.datum||''),'cs')*-1);
+  const sorted=[...filtered].sort((a,b)=>String(a.datum||'').localeCompare(String(b.datum||''),'sk'));
   const cb=document.getElementById('view-cards');
-  if(!sorted.length){cb.innerHTML=`<div style="text-align:center;color:var(--text3);padding:48px 20px;font-size:.88rem">Žádné výsledky</div>`;return;}
+  if(!sorted.length){cb.innerHTML=`<div style="text-align:center;color:var(--text3);padding:48px 20px;font-size:.88rem">Žiadne výsledky</div>`;return;}
   const today=new Date().toISOString().slice(0,10);
   cb.innerHTML=sorted.map(l=>{
     const finfo=getFazeInfo(l.stav);
     const tel=telNum(l.telefon);
     const note=l.myNotes||l.notes||'';
-    const castka=l.prodej_castka?`<span style="color:var(--green);font-weight:700;font-size:.8rem">${Number(l.prodej_castka).toLocaleString('cs')} €</span>`:'';
+    const castka=l.prodej_castka?`<span style="color:var(--green);font-weight:700;font-size:.8rem">${Number(l.prodej_castka).toLocaleString('sk')} €</span>`:'';
     const isKonecCard=l.stav==='konec'||l.stav==='nerelevantni'||l.stav==='nezvedan3';
     const fuC=isKonecCard?'var(--text3)':(l.stav==='uzavreno'||l.stav==='uzavreno_emailem')?'var(--green)':l.followup<=today?'var(--red)':'var(--text3)';
     const fu=l.followup?`<span style="font-size:.7rem;color:${fuC};opacity:${isKonecCard?'0.35':'1'}">📅 ${l.followup}</span>`:'';
@@ -954,6 +954,7 @@ async function changeFaze(email,newStav){
   const lead=leads.find(l=>l.email===email);if(!lead)return;
   const oldStav=lead.stav;
   lead.stav=newStav;
+  lead.poz=getPoz(newStav);
   await saveToApi(lead,oldStav);
   renderStatsBar();renderTable();
 }
@@ -976,8 +977,8 @@ function getMonths(){const m=new Set();leads.forEach(l=>{const x=getLeadMonth(l)
 
 function renderStatsView(){
   const sv=document.getElementById('view-stats');
-  const eur=n=>Number(n||0).toLocaleString('cs',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
-  const hod=n=>Number(n||0).toLocaleString('cs',{maximumFractionDigits:2})+' h';
+  const eur=n=>Number(n||0).toLocaleString('sk',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+  const hod=n=>Number(n||0).toLocaleString('sk',{maximumFractionDigits:2})+' h';
 
   // ── Měsíční přehled — z hodiny_log (potvrzené dávky hodin) ──
   const byMonth={};
@@ -1001,17 +1002,17 @@ function renderStatsView(){
   const totalVR=totalHodiny*RATE_VR;
 
   let h=`<div class="stats-grid" style="margin-bottom:20px">
-    <div class="kpi"><div class="kpi-val" style="color:var(--accent2)">${hod(totalHodiny)}</div><div class="kpi-label">Odpracováno celkem</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--accent2)">${hod(totalHodiny)}</div><div class="kpi-label">Odpracované celkom</div></div>
     <div class="kpi"><div class="kpi-val" style="color:var(--green)">${eur(totalVlado)}</div><div class="kpi-label">Vlado (${RATE_VLADO.toFixed(2)} €/h)</div></div>
     <div class="kpi"><div class="kpi-val" style="color:#a855f7">${eur(totalVR)}</div><div class="kpi-label">V&R Ads (${RATE_VR.toFixed(2)} €/h)</div></div>
-    <div class="kpi"><div class="kpi-val">${candRows.length}</div><div class="kpi-label">Aktivních kandidátů s hodinami</div></div>
+    <div class="kpi"><div class="kpi-val">${candRows.length}</div><div class="kpi-label">Aktívnych kandidátov s hodinami</div></div>
   </div>`;
 
-  h+=`<div class="chart-box" style="margin-bottom:20px"><h3>📅 Měsíční přehled a rozúčtování</h3>`;
+  h+=`<div class="chart-box" style="margin-bottom:20px"><h3>📅 Mesačný prehľad a rozúčtovanie</h3>`;
   if(!monthRows.length){
-    h+=`<div style="color:var(--text3);font-size:.8rem;padding:10px 0">Zatím žádné potvrzené hodiny přes ⏱️ Přidat hodiny z emailu — přehled po měsících se objeví po první dávce.</div>`;
+    h+=`<div style="color:var(--text3);font-size:.8rem;padding:10px 0">Zatiaľ žiadne potvrdené hodiny cez ⏱️ Pridať hodiny z e-mailu — prehľad po mesiacoch sa zobrazí po prvej dávke.</div>`;
   }else{
-    h+=`<table class="pt"><thead><tr><th>Měsíc</th><th style="text-align:right">Hodiny</th><th style="text-align:right">Vlado</th><th style="text-align:right">V&R Ads</th><th style="text-align:right">Celkem</th></tr></thead><tbody>`;
+    h+=`<table class="pt"><thead><tr><th>Mesiac</th><th style="text-align:right">Hodiny</th><th style="text-align:right">Vlado</th><th style="text-align:right">V&R Ads</th><th style="text-align:right">Celkom</th></tr></thead><tbody>`;
     monthRows.forEach(m=>{
       const vlado=m.hodiny*RATE_VLADO,vr=m.hodiny*RATE_VR;
       h+=`<tr><td style="font-weight:600">${MONTH_NAMES[m.month%100]} ${Math.floor(m.month/100)}</td>
@@ -1021,7 +1022,7 @@ function renderStatsView(){
         <td style="text-align:right;font-weight:600">${eur(vlado+vr)}</td></tr>`;
     });
     h+=`<tr style="border-top:2px solid var(--border);font-weight:700">
-      <td>CELKEM</td><td style="text-align:right">${hod(totalHodinyLog)}</td>
+      <td>CELKOM</td><td style="text-align:right">${hod(totalHodinyLog)}</td>
       <td style="text-align:right;color:var(--green)">${eur(totalHodinyLog*RATE_VLADO)}</td>
       <td style="text-align:right;color:#a855f7">${eur(totalHodinyLog*RATE_VR)}</td>
       <td style="text-align:right">${eur(totalHodinyLog*(RATE_VLADO+RATE_VR))}</td></tr>`;
@@ -1029,11 +1030,11 @@ function renderStatsView(){
   }
   h+=`</div>`;
 
-  h+=`<div class="chart-box"><h3>👤 Přehled podle kandidáta</h3>`;
+  h+=`<div class="chart-box"><h3>👤 Prehľad podľa kandidáta</h3>`;
   if(!candRows.length){
-    h+=`<div style="color:var(--text3);font-size:.8rem;padding:10px 0">Zatím žádný kandidát nemá zaznamenané odpracované hodiny.</div>`;
+    h+=`<div style="color:var(--text3);font-size:.8rem;padding:10px 0">Zatiaľ žiadny kandidát nemá zaznamenané odpracované hodiny.</div>`;
   }else{
-    h+=`<table class="pt"><thead><tr><th>Jméno</th><th>Profese</th><th style="text-align:right">Hodiny</th><th style="text-align:right">Vlado</th><th style="text-align:right">V&R Ads</th></tr></thead><tbody>`;
+    h+=`<table class="pt"><thead><tr><th>Meno</th><th>Profesia</th><th style="text-align:right">Hodiny</th><th style="text-align:right">Vlado</th><th style="text-align:right">V&R Ads</th></tr></thead><tbody>`;
     candRows.forEach(c=>{
       h+=`<tr><td style="font-weight:600">${esc(c.jmeno||'—')}</td><td style="color:var(--text2)">${esc(c.profese||'')}</td>
         <td style="text-align:right">${hod(c.hodiny)}</td>
@@ -1041,7 +1042,7 @@ function renderStatsView(){
         <td style="text-align:right;color:#a855f7">${eur(c.hodiny*RATE_VR)}</td></tr>`;
     });
     h+=`<tr style="border-top:2px solid var(--border);font-weight:700">
-      <td colspan="2">CELKEM</td><td style="text-align:right">${hod(totalHodinyCand)}</td>
+      <td colspan="2">CELKOM</td><td style="text-align:right">${hod(totalHodinyCand)}</td>
       <td style="text-align:right;color:var(--green)">${eur(totalHodinyCand*RATE_VLADO)}</td>
       <td style="text-align:right;color:#a855f7">${eur(totalHodinyCand*RATE_VR)}</td></tr>`;
     h+=`</tbody></table>`;
@@ -1161,10 +1162,10 @@ function renderEmail(){
 function openLead(id){
   const l=leads.find(x=>x._id===id);if(!l)return;
   currentLead=l;
-  document.getElementById('pName').textContent=l.jmeno||'Neznámý';
+  document.getElementById('pName').textContent=l.jmeno||'Neznámy';
   document.getElementById('pFirma').textContent=l.profese||(l.datum?'Datum: '+l.datum:'');
   document.getElementById('pStage').value=l.stav||'';
-  document.getElementById('pPoz').value=l.poz||'';
+  document.getElementById('pPoz').textContent=POZ_LABEL[effectivePoz(l)]||'—';
   document.getElementById('pFollowup').value=l.followup||'';
   document.getElementById('pNotes').value=l.myNotes||'';
   document.getElementById('pZivnost').value=l.zivnost||'';
@@ -1196,8 +1197,8 @@ function openLead(id){
     document.getElementById('pImportedNotes').textContent=importedNote;
   }else{iw.style.display='none';}
   let acts='';
-  if(tel)acts+=`<a class="btn" href="tel:${tel}">📞 Volat</a>`;
-  if(l.email)acts+=`<a class="btn" href="mailto:${esc(l.email)}">✉️ Email</a>`;
+  if(tel)acts+=`<a class="btn" href="tel:${tel}">📞 Volať</a>`;
+  if(l.email)acts+=`<a class="btn" href="mailto:${esc(l.email)}">✉️ E-mail</a>`;
   document.getElementById('pActions').innerHTML=acts;
   document.getElementById('overlay').classList.add('open');
   document.getElementById('panel').classList.add('open');
@@ -1209,19 +1210,13 @@ function savePanel(){
   const oldStav=currentLead.stav;
   const oldNotes=currentLead.myNotes||''; // zachytit PŘED přepsáním
   currentLead.stav=document.getElementById('pStage').value;
+  currentLead.poz=getPoz(currentLead.stav);
   currentLead.followup=document.getElementById('pFollowup').value;
   currentLead.myNotes=document.getElementById('pNotes').value;
   saveToApi(currentLead,oldStav,oldNotes);
   renderStatsBar();
   if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
-}
-
-function savePozFromPanel(){
-  if(!currentLead)return;
-  currentLead.poz=document.getElementById('pPoz').value;
-  saveToApi(currentLead);
-  renderStatsBar();
-  if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
+  document.getElementById('pPoz').textContent=POZ_LABEL[currentLead.poz]||'—';
 }
 
 // ── Uložení polí profilu kandidáta (přímo do tabulky leads) ────
@@ -1253,7 +1248,7 @@ async function saveLeadFields(){
       body:JSON.stringify({zivnost,ridicak,profese,jazyky,praxe,nastup,problem,odpracovane_hodiny})
     });
     if(!r.ok)throw new Error(await r.text());
-    showSync('✅ Uloženo','#16a34a');
+    showSync('✅ Uložené','#16a34a');
     if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
   }catch(e){showSync('⚠️ '+e.message,'#d97706');}
 }
@@ -1263,7 +1258,7 @@ function closePanel(){
     const oldStav=currentLead.stav;
     const oldNotes=currentLead.myNotes||'';
     currentLead.stav=document.getElementById('pStage').value;
-    currentLead.poz=document.getElementById('pPoz').value;
+    currentLead.poz=getPoz(currentLead.stav);
     currentLead.followup=document.getElementById('pFollowup').value;
     currentLead.myNotes=document.getElementById('pNotes').value;
     saveToApi(currentLead,oldStav,oldNotes);
@@ -1450,8 +1445,8 @@ function doFile(file){
       const existingNow=new Set(leads.map(l=>l.email).filter(Boolean));
       const newCount=impD.filter(r=>!r.email||!existingNow.has(r.email)).length;
       const dupCount=impD.length-newCount;
-      const dupInfo=dupCount?` · <span style="color:var(--yellow)">⚠️ ${dupCount} duplikát${dupCount>4?'ů':dupCount>1?'y':''}  přeskočeno</span>`:'';
-      document.getElementById('impInfo').innerHTML=`<b style="color:var(--green)">✅ Nalezeno ${impD.length} řádků</b> v "${esc(file.name)}"${isFB?' <span style="color:#3b82f6;font-size:.75rem">· FB Lead Ads</span>':''}${dupInfo}${newCount<impD.length?` · <b style="color:var(--green)">${newCount} nových</b>`:''}`;
+      const dupInfo=dupCount?` · <span style="color:var(--yellow)">⚠️ ${dupCount} duplikát${dupCount>4?'ov':dupCount>1?'y':''}  preskočené</span>`:'';
+      document.getElementById('impInfo').innerHTML=`<b style="color:var(--green)">✅ Nájdených ${impD.length} riadkov</b> v "${esc(file.name)}"${isFB?' <span style="color:#3b82f6;font-size:.75rem">· FB Lead Ads</span>':''}${dupInfo}${newCount<impD.length?` · <b style="color:var(--green)">${newCount} nových</b>`:''}`;
       document.getElementById('impBtn').style.display='';
     }catch(err){alert('Chyba: '+err.message);}
   };
@@ -1460,7 +1455,7 @@ function doFile(file){
 
 async function doImport(){
   if(!impD.length)return;
-  const btn=document.getElementById('impBtn');btn.disabled=true;btn.textContent='⏳ Importuji…';
+  const btn=document.getElementById('impBtn');btn.disabled=true;btn.textContent='⏳ Importujem…';
   const prog=document.getElementById('progF'),st=document.getElementById('impSt');
 
   // ── Deduplication: přeskoč leady, které už v CRM jsou (podle emailu) ──
@@ -1469,8 +1464,8 @@ async function doImport(){
   const skipped=impD.length-toImport.length;
 
   if(!toImport.length){
-    if(st)st.innerHTML=`<span style="color:var(--yellow)">⚠️ Všechny leady (${skipped}) již v CRM existují — nic importováno.</span>`;
-    btn.disabled=false;btn.textContent='✅ Importovat';
+    if(st)st.innerHTML=`<span style="color:var(--yellow)">⚠️ Všetky leady (${skipped}) už v CRM existujú — nič sa neimportovalo.</span>`;
+    btn.disabled=false;btn.textContent='✅ Importovať';
     return;
   }
 
@@ -1481,20 +1476,20 @@ async function doImport(){
       await sbPost('/rest/v1/leads',batch);
       done+=Math.min(100,toImport.length-i);
       if(prog)prog.style.width=Math.round(done/toImport.length*100)+'%';
-      if(st)st.textContent=(skipped?`Přeskočeno ${skipped} duplikátů · `:'')+'Importováno '+done+' / '+toImport.length;
+      if(st)st.textContent=(skipped?`Preskočené ${skipped} duplikátov · `:'')+'Importované '+done+' / '+toImport.length;
     }catch(err){
       if(st)st.textContent='❌ '+err.message;
-      btn.disabled=false;btn.textContent='✅ Importovat';
+      btn.disabled=false;btn.textContent='✅ Importovať';
       return;
     }
   }
-  if(st)st.innerHTML=`✅ Hotovo! <b style="color:var(--green)">${toImport.length} nových</b>${skipped?` · <span style="color:var(--text3)">${skipped} přeskočeno (již existují)</span>`:''}`;
+  if(st)st.innerHTML=`✅ Hotovo! <b style="color:var(--green)">${toImport.length} nových</b>${skipped?` · <span style="color:var(--text3)">${skipped} preskočené (už existujú)</span>`:''}`;
   setTimeout(()=>{closeImport();init();},1500);
 }
 
 // ── Denní view ────────────────────────────────────────────────
 let denniBuf=[],denniDay=null,denniLoading=false,denniCounts={};
-const WD=['Ne','Po','Út','St','Čt','Pá','So'];
+const WD=['Ne','Po','Ut','St','Št','Pi','So'];
 function getDenniDays(){
   const days=[];
   for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toISOString().slice(0,10));}
@@ -1554,8 +1549,8 @@ function renderDenni(){
   dv.innerHTML=`
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">PŘEHLED 7 DNÍ</div>
-        <div style="font-size:.65rem;color:var(--text3)">🟢 uzavřeno &nbsp; 🟡 aktivita</div>
+        <div style="font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">PREHĽAD 7 DNÍ</div>
+        <div style="font-size:.65rem;color:var(--text3)">🟢 uzavreté &nbsp; 🟡 aktivita</div>
       </div>
       <div class="day-nav" id="denni-nav"></div>
     </div>
@@ -1569,7 +1564,7 @@ function renderDenniContent(rows){
   const el=document.getElementById('denni-content');if(!el)return;
   if(!rows.length){
     el.innerHTML=`<div style="text-align:center;color:var(--text3);padding:48px;font-size:.85rem">
-      Pro tento den nejsou žádné záznamy.<br><span style="font-size:.75rem;margin-top:6px;display:block">Změny fází se začnou zaznamenávat od teď.</span>
+      Pre tento deň nie sú žiadne záznamy.<br><span style="font-size:.75rem;margin-top:6px;display:block">Zmeny fáz sa začnú zaznamenávať od teraz.</span>
     </div>`;return;
   }
   const FAZE_ICON={volat:'📞',nezvedan1:'☎️',nezvedan2:'☎️',nezvedan3:'☎️',odeslat_email:'📧',email_odeslano:'📤',email_odpoved:'💬',uzavreno_emailem:'💚',komunikace_wa:'💬',probiha_komunikace:'💬',nerelevantni:'☹️',konec:'❌',domluvena_schuzka:'✅',odeslana_faktura:'🧾',uzavreno:'💚','':"—"};
@@ -1578,14 +1573,14 @@ function renderDenniContent(rows){
   const toCall=stavRows.filter(r=>['volat','nezvedan1','nezvedan2','nezvedan3'].includes(r.new_stav)).length;
   const closed=stavRows.filter(r=>['uzavreno','uzavreno_emailem','domluvena_schuzka'].includes(r.new_stav)).length;
   let h=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">
-    <div class="kpi"><div class="kpi-val">${stavRows.length}</div><div class="kpi-label">Posunů fází</div></div>
-    <div class="kpi"><div class="kpi-val" style="color:#eab308">${toCall}</div><div class="kpi-label">Na volání</div></div>
-    <div class="kpi"><div class="kpi-val" style="color:#22c55e">${closed}</div><div class="kpi-label">Uzavřeno</div></div>
-    <div class="kpi"><div class="kpi-val" style="color:#a855f7">${noteRows.length}</div><div class="kpi-label">Poznámek</div></div>
+    <div class="kpi"><div class="kpi-val">${stavRows.length}</div><div class="kpi-label">Posunov fáz</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:#eab308">${toCall}</div><div class="kpi-label">Na volanie</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:#22c55e">${closed}</div><div class="kpi-label">Uzavreté</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:#a855f7">${noteRows.length}</div><div class="kpi-label">Poznámok</div></div>
   </div>
-  <div style="font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">PŘEHLED ZMĚN</div>`;
+  <div style="font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">PREHĽAD ZMIEN</div>`;
   rows.forEach(r=>{
-    const t=new Date(r.created_at).toLocaleTimeString('cs',{hour:'2-digit',minute:'2-digit'});
+    const t=new Date(r.created_at).toLocaleTimeString('sk',{hour:'2-digit',minute:'2-digit'});
     const lead=leads.find(l=>l.email===r.lead_email);
     const onclick=lead?`openLead(${lead._id})`:'';
     if(r.action==='poznamka'){
@@ -1651,7 +1646,7 @@ function renderKampane(){
     kreativy[key].leads.push(l);
   });
   const arr=Object.values(kreativy).sort((a,b)=>b.leads.length-a.leads.length);
-  if(!arr.length){kv.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px">Žádné kreativy.</div>';return;}
+  if(!arr.length){kv.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px">Žiadne kreatívy.</div>';return;}
   let h='<div style="padding:8px 0">';
   arr.forEach(c=>{
     const uzavrene=c.leads.filter(l=>(l.poz||'')==='uzavreno');
@@ -1668,19 +1663,19 @@ function renderKampane(){
           </div>
           ${c.campaign&&c.campaign!==c.name?`<div style="font-size:.67rem;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📣 ${esc(c.campaign)}</div>`:''}
         </div>
-        <span style="font-size:.75rem;color:var(--text3);white-space:nowrap;flex-shrink:0;margin-left:8px">${c.leads.length} leadů</span>
+        <span style="font-size:.75rem;color:var(--text3);white-space:nowrap;flex-shrink:0;margin-left:8px">${c.leads.length} leadov</span>
       </div>
       <div class="camp-stats">
         <div class="camp-stat"><div class="camp-stat-val">${c.leads.length}</div><div class="camp-stat-label">Leady</div></div>
-        <div class="camp-stat"><div class="camp-stat-val" style="color:var(--green)">${uzavrene.length}</div><div class="camp-stat-label">Uzavřené</div></div>
-        <div class="camp-stat"><div class="camp-stat-val" style="color:var(--accent2)">${konv}%</div><div class="camp-stat-label">Konverze</div></div>
-        <div class="camp-stat"><div class="camp-stat-val" style="color:var(--green)">${obrat>0?Number(obrat).toLocaleString('cs',{minimumFractionDigits:2,maximumFractionDigits:2})+' €':'—'}</div><div class="camp-stat-label">Obrat / měsíc</div></div>
+        <div class="camp-stat"><div class="camp-stat-val" style="color:var(--green)">${uzavrene.length}</div><div class="camp-stat-label">Uzavreté</div></div>
+        <div class="camp-stat"><div class="camp-stat-val" style="color:var(--accent2)">${konv}%</div><div class="camp-stat-label">Konverzia</div></div>
+        <div class="camp-stat"><div class="camp-stat-val" style="color:var(--green)">${obrat>0?Number(obrat).toLocaleString('sk',{minimumFractionDigits:2,maximumFractionDigits:2})+' €':'—'}</div><div class="camp-stat-label">Obrat / mesiac</div></div>
         <div class="camp-stat">
           <div class="camp-stat-val" style="color:${c.spend?'var(--red)':'var(--text3)'}">
-            ${c.spend?Number(c.spend).toLocaleString('cs')+' €':'—'}
+            ${c.spend?Number(c.spend).toLocaleString('sk')+' €':'—'}
           </div>
           <div class="camp-stat-label">
-            FB Spend
+            FB výdavky
             <button onclick="editFbSpend('${esc(c.name)}')" style="background:none;border:none;cursor:pointer;font-size:.65rem;color:var(--accent);padding:1px 3px;margin-left:2px">✏️</button>
           </div>
         </div>
@@ -1695,7 +1690,7 @@ function renderKampane(){
 
 function editFbSpend(campName){
   const cur=fbSpend[campName]||0;
-  const val=prompt('FB výdaje pro:\n'+campName,cur);
+  const val=prompt('FB výdavky pre:\n'+campName,cur);
   if(val===null)return;
   const n=parseFloat(val)||0;
   saveFbSpend(campName,n);
@@ -1706,7 +1701,7 @@ async function saveFbSpend(campaign_name,spend){
   try{
     await sbPost('/rest/v1/fb_spend',{campaign_name,spend});
     renderKampane();
-  }catch(e){alert('Chyba uložení: '+e.message);}
+  }catch(e){alert('Chyba uloženia: '+e.message);}
 }
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -1813,10 +1808,10 @@ async function syncGSheets(){
       }
     }
 
-    if(!sheetsRead&&errors.length){throw new Error('Nepodařilo se načíst žádný list: '+errors.join('; '));}
+    if(!sheetsRead&&errors.length){throw new Error('Nepodarilo sa načítať žiadny hárok: '+errors.join('; '));}
 
     if(!newLeads.length){
-      showSync(`✅ Vše aktuální — 0 nových${skipped?` (${skipped} duplikátů přeskočeno)`:''}`,'#16a34a');
+      showSync(`✅ Všetko aktuálne — 0 nových${skipped?` (${skipped} duplikátov preskočených)`:''}`,'#16a34a');
       btn.disabled=false;btn.textContent='📊';
       return;
     }
@@ -1827,7 +1822,7 @@ async function syncGSheets(){
       done+=Math.min(100,newLeads.length-i);
     }
 
-    showSync(`✅ Importováno ${done} nových leadů z ${sheetsRead} listů${skipped?` · ${skipped} duplikátů přeskočeno`:''}`, '#16a34a');
+    showSync(`✅ Importovaných ${done} nových leadov z ${sheetsRead} hárkov${skipped?` · ${skipped} duplikátov preskočených`:''}`, '#16a34a');
     await init();
   }catch(e){
     showSync('❌ '+e.message,'#ef4444');
@@ -1871,14 +1866,14 @@ function parseHoursEmail(){
   const email=emailMatch.toLowerCase();
   const lead=email?leads.find(l=>l.email&&l.email.toLowerCase()===email):null;
   if(!lead){
-    err.innerHTML=email?`⚠️ Nenašel jsem kandidáta s emailem <b>${esc(email)}</b> v CRM.`:'⚠️ V textu jsem nenašel emailovou adresu kandidáta.';
+    err.innerHTML=email?`⚠️ Nenašiel som kandidáta s e-mailom <b>${esc(email)}</b> v CRM.`:'⚠️ V texte som nenašiel e-mailovú adresu kandidáta.';
     err.style.display='';
     prev.style.display='none';
     btn.style.display='none';
     return;
   }
   if(hodiny===null){
-    err.innerHTML='⚠️ Nenašel jsem počet odpracovaných hodin v textu.';
+    err.innerHTML='⚠️ Nenašiel som počet odpracovaných hodín v texte.';
     err.style.display='';
     prev.style.display='none';
     btn.style.display='none';
@@ -1891,15 +1886,15 @@ function parseHoursEmail(){
   document.getElementById('hoursEmailInfo').innerHTML=
     `<div>👤 <b>${esc(lead.jmeno||lead.email)}</b></div>`+
     `<div>✉️ ${esc(lead.email)}</div>`+
-    `<div>⏱️ Přidat: <b>${hodiny} h</b></div>`+
-    `<div style="margin-top:4px;color:var(--text2)">Nový celkový součet: <b>${total} h</b> (dosud ${current} h)</div>`;
+    `<div>⏱️ Pridať: <b>${hodiny} h</b></div>`+
+    `<div style="margin-top:4px;color:var(--text2)">Nový celkový súčet: <b>${total} h</b> (doteraz ${current} h)</div>`;
   prev.style.display='';
   btn.style.display='';
 }
 async function doHoursEmail(){
   if(!parsedHoursData)return;
   const btn=document.getElementById('hoursEmailBtn');
-  btn.disabled=true;btn.textContent='⏳ Ukládám…';
+  btn.disabled=true;btn.textContent='⏳ Ukladám…';
   const err=document.getElementById('hoursEmailErr');
   try{
     const enc=encodeURIComponent(parsedHoursData.email);
@@ -1917,11 +1912,11 @@ async function doHoursEmail(){
     }catch(logErr){/* log je pomocný — nepřerušovat flow kvůli chybě zápisu */}
     closeHoursEmail();
     await init();
-    showSync('✅ Hodiny přidány','#16a34a');
+    showSync('✅ Hodiny pridané','#16a34a');
   }catch(e){
     err.textContent='❌ '+e.message;
     err.style.display='';
-    btn.disabled=false;btn.textContent='⏱️ Přidat hodiny';
+    btn.disabled=false;btn.textContent='⏱️ Pridať hodiny';
   }
 }
 

@@ -355,8 +355,12 @@ tr:hover td{background:rgba(28,32,53,.8);cursor:pointer}
     <div class="p-grid">
       <div>
         <span class="p-label">Stav (kategória)</span>
-        <div class="info-box" style="margin-top:2px"><div class="val" id="pPoz">—</div></div>
-        <div style="font-size:.64rem;color:var(--text3);margin-top:2px">Odvodené automaticky z Fázy</div>
+        <select class="p-select" id="pPoz" onchange="savePozFromPanel()">
+          <option value="">— nevybrané —</option>
+          <option value="otevreno">🟡 Otvorené</option>
+          <option value="uzavreno">🟢 Uzavreté</option>
+          <option value="konec">🔴 Koniec</option>
+        </select>
       </div>
       <div>
         <span class="p-label">Fáza</span>
@@ -711,7 +715,7 @@ async function init(){
         prodej_note:c.prodej_note||'',
         followup:c.followup||'',
         myNotes:c.my_notes||'',
-        poz:getPoz(migrateStav(rawStav)),
+        poz:c.poz||getPoz(migrateStav(rawStav)),
       };
     });
     showSync('✅ '+leads.length+' leadov · '+new Date().toLocaleTimeString('sk',{hour:'2-digit',minute:'2-digit'}),'#16a34a');
@@ -879,7 +883,8 @@ function renderTable(){
     const finfo=getFazeInfo(l.stav);
     const poz=effectivePoz(l);
     const tel=telNum(l.telefon);
-    const pozCell=`<span class="badge ${POZ_CLS[poz]||''}">${POZ_LABEL[poz]||'—'}</span>`;
+    const pozOpts=['','otevreno','uzavreno','konec'].map(v=>`<option value="${v}"${poz===v?' selected':''}>${POZ_LABEL[v]||'—'}</option>`).join('');
+    const pozCell=`<select class="cell-sel ${POZ_CLS[poz]||''}" onchange="changePoz('${esc(l.email)}',this.value)" onclick="event.stopPropagation()">${pozOpts}</select>`;
     const fazeOpts=FAZE.map(f=>`<option value="${f.id}"${l.stav===f.id?' selected':''}>${f.label}</option>`).join('');
     const isKonec=l.stav==='konec'||l.stav==='nerelevantni'||l.stav==='nezvedan3';
     const fuColor=isKonec?'var(--text3)':l.followup&&l.followup<=today?'var(--red)':l.followup?'var(--accent2)':'var(--text3)';
@@ -954,7 +959,6 @@ async function changeFaze(email,newStav){
   const lead=leads.find(l=>l.email===email);if(!lead)return;
   const oldStav=lead.stav;
   lead.stav=newStav;
-  lead.poz=getPoz(newStav);
   await saveToApi(lead,oldStav);
   renderStatsBar();renderTable();
 }
@@ -1165,7 +1169,7 @@ function openLead(id){
   document.getElementById('pName').textContent=l.jmeno||'Neznámy';
   document.getElementById('pFirma').textContent=l.profese||(l.datum?'Datum: '+l.datum:'');
   document.getElementById('pStage').value=l.stav||'';
-  document.getElementById('pPoz').textContent=POZ_LABEL[effectivePoz(l)]||'—';
+  document.getElementById('pPoz').value=effectivePoz(l);
   document.getElementById('pFollowup').value=l.followup||'';
   document.getElementById('pNotes').value=l.myNotes||'';
   document.getElementById('pZivnost').value=l.zivnost||'';
@@ -1210,13 +1214,19 @@ function savePanel(){
   const oldStav=currentLead.stav;
   const oldNotes=currentLead.myNotes||''; // zachytit PŘED přepsáním
   currentLead.stav=document.getElementById('pStage').value;
-  currentLead.poz=getPoz(currentLead.stav);
   currentLead.followup=document.getElementById('pFollowup').value;
   currentLead.myNotes=document.getElementById('pNotes').value;
   saveToApi(currentLead,oldStav,oldNotes);
   renderStatsBar();
   if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
-  document.getElementById('pPoz').textContent=POZ_LABEL[currentLead.poz]||'—';
+}
+
+function savePozFromPanel(){
+  if(!currentLead)return;
+  currentLead.poz=document.getElementById('pPoz').value;
+  saveToApi(currentLead);
+  renderStatsBar();
+  if(currentTab==='table'){if(isMobile())renderCards();else renderTable();}
 }
 
 // ── Uložení polí profilu kandidáta (přímo do tabulky leads) ────
@@ -1258,7 +1268,7 @@ function closePanel(){
     const oldStav=currentLead.stav;
     const oldNotes=currentLead.myNotes||'';
     currentLead.stav=document.getElementById('pStage').value;
-    currentLead.poz=getPoz(currentLead.stav);
+    currentLead.poz=document.getElementById('pPoz').value;
     currentLead.followup=document.getElementById('pFollowup').value;
     currentLead.myNotes=document.getElementById('pNotes').value;
     saveToApi(currentLead,oldStav,oldNotes);
